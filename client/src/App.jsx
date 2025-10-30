@@ -1,14 +1,16 @@
-import FoodDonationPage from './components/FoodDonationPage.jsx';
-import VolunteerDonationClaim from './components/volunteer/VolunteerDonationClaim'
-import './App.css'
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import LoginPage from "./shiffy/Login";
+import SignupPage from "./shiffy/Signup";
 
-function App() {
+export default function App() {
   return (
-    <>
-     <FoodDonationPage />;
-    <VolunteerDonationClaim/>
-    </>
-  )
+    <Router>
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+      </Routes>
+    </Router>
+  );
 }
-
-export default App;
