@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import LoginPage from "./shiffy/Login";
 import SignupPage from "./shiffy/Signup";
 import FoodDonationPage from "./components/FoodDonationPage";
+import FoodItemsForm from "./components/FoodItemsForm";
 import HomePage from "./components/HomePage";
 export default function App() {
   return (
@@ -12,7 +13,7 @@ export default function App() {
         <Route path="/home" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
-        <Route path="/donate-food" element={<FoodDonationPage />} />
+        <Route path="/donation" element={<FoodDonationPage />}
       </Routes>
     </Router>
   );

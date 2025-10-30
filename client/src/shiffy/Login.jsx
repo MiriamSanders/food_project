@@ -1,12 +1,8 @@
 import React, { useState } from "react";
 import {
-  Box,
-  TextField,
-  Button,
-  Typography,
-  Paper,
-  Link,
+  Box, Button, Typography, TextField, Stack, Snackbar, Alert
 } from "@mui/material";
+import { Favorite, Person } from "@mui/icons-material";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { getUser } from "./api";
 
@@ -14,92 +10,109 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-const handleLogin = async (e) => {
-  e.preventDefault();
+  const handleSnackbarClose = () => setSnackbar({ ...snackbar, open: false });
 
-  const user = await getUser(email);
-  if (user && user.password === password) {
-    alert("Login successful!");
-    navigate("/dashboard");
-  } else {
-    alert("Invalid email or password");
-  }
-};
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    const user = await getUser(email);
+    if (user && user.password === password) {
+      setSnackbar({ open: true, message: "Login successful!", severity: "success" });
+      setTimeout(() => navigate("/dashboard"), 1000);
+    } else {
+      setSnackbar({ open: true, message: "Invalid email or password", severity: "error" });
+    }
+    setIsSubmitting(false);
+  };
+
   return (
     <Box
       sx={{
-        height: "100vh",
+        minHeight: "100vh",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "linear-gradient(135deg, #1e1e2f 0%, #3a3a60 100%)",
+        p: { xs: 2, md: 4 },
+        backgroundImage: "url(/background_image.png)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundAttachment: "fixed",
       }}
     >
-      <Paper
-        elevation={6}
+      <Box
         sx={{
-          p: 5,
-          width: 400,
-          textAlign: "center",
-          backgroundColor: "rgba(255,255,255,0.1)",
-          backdropFilter: "blur(10px)",
+          maxWidth: 400,
+          width: "100%",
+          bgcolor: "rgba(255,255,255,0.95)",
           borderRadius: 4,
+          boxShadow: 24,
+          p: { xs: 3, sm: 4 },
         }}
       >
-        <Typography variant="h5" gutterBottom color="white">
-          Login
-        </Typography>
+        {/* Header with icon */}
+        <Stack direction="row" alignItems="center" spacing={1} mb={3} justifyContent="center">
+          <Favorite color="success" fontSize="large" />
+          <Typography
+            variant="h4"
+            fontWeight="bold"
+            fontFamily="Inter, sans-serif"
+          >
+            Login
+          </Typography>
+        </Stack>
 
-        {/* form */}
         <Box component="form" onSubmit={handleLogin}>
-          <TextField
-            label="Email"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            InputLabelProps={{ style: { color: "#ccc" } }}
-            InputProps={{ style: { color: "white" } }}
-            required
-          />
-
-          <TextField
-            label="Password"
-            type="password"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            InputLabelProps={{ style: { color: "#ccc" } }}
-            InputProps={{ style: { color: "white" } }}
-            required
-          />
+          <Stack spacing={2}>
+            <TextField
+              label="Email"
+              fullWidth
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              InputProps={{ startAdornment: <Person sx={{ mr: 1 }} /> }}
+            />
+            <TextField
+              label="Password"
+              type="password"
+              fullWidth
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </Stack>
 
           <Button
             type="submit"
             variant="contained"
+            color="success"
             fullWidth
-            sx={{ mt: 2, backgroundColor: "#1976d2" }}
+            sx={{ mt: 3, py: 1.5, fontWeight: "bold" }}
+            disabled={isSubmitting}
           >
-            Login
+            {isSubmitting ? "Logging in..." : "Login"}
           </Button>
         </Box>
 
-        <Typography variant="body2" sx={{ mt: 3, color: "#ccc" }}>
+        <Typography textAlign="center" mt={3} color="text.secondary">
           Don’t have an account?{" "}
-          <Link
-            component={RouterLink}
-            to="/signup"
-            underline="hover"
-            sx={{ color: "#90caf9" }}
-          >
+          <RouterLink to="/signup" style={{ color: "#1976d2", textDecoration: "none" }}>
             Sign up
-          </Link>
+          </RouterLink>
         </Typography>
-      </Paper>
+      </Box>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleSnackbarClose}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: "100%" }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
