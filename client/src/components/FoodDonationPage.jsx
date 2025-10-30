@@ -156,7 +156,6 @@ export default function FoodDonationPage() {
                             fullWidth
                             value={pickupTime}
                             onChange={(e) => setPickupTime(e.target.value)}
-                            InputLabelProps={{ shrink: true }}
                             helperText="Food must be collected by this time today"
                         />
 
