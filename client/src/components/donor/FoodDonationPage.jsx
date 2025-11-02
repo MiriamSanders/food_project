@@ -60,6 +60,7 @@ export default function FoodDonationPage() {
               if (data.features && data.features.length > 0) {
                 setLocation(data.features[0].properties.formatted);
               }
+
             });
           showSnackbar("Location detected successfully.", "info");
         },

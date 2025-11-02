@@ -143,7 +143,7 @@ const handleSignup = async (e) => {
 
         <Typography textAlign="center" mt={3} color="text.secondary">
           Already have an account?{" "}
-          <RouterLink to="/" style={{ color: "#1976d2", textDecoration: "none" }}>
+          <RouterLink to="/login" style={{ color: "#1976d2", textDecoration: "none" }}>
             Log in
           </RouterLink>
         </Typography>

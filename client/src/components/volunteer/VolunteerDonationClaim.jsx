@@ -3,21 +3,18 @@ import { Box, CircularProgress, Typography } from "@mui/material";
 import DonationList from "./DonationList";
 import Layout from "../layout/Layout";
 import axios from "axios";
-import { io } from "socket.io-client";
+import SuccessPage from "./SuccessPage.jsx"; // ✅ import your success popup
 
 const VolunteerDonationClaim = () => {
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === "development";
+  const [successOpen, setSuccessOpen] = useState(false);
+  const [claimedAddress, setClaimedAddress] = useState("");
 
   useEffect(() => {
     const fetchDonations = async () => {
       setLoading(true);
-
       try {
-        // Wrap geolocation in a Promise to await it
         const getCoordinates = () =>
           new Promise((resolve, reject) => {
             navigator.geolocation.getCurrentPosition(
@@ -43,23 +40,26 @@ const VolunteerDonationClaim = () => {
 
     fetchDonations();
   }, []);
-  const handleClaim = async (donationId) => {
-    // if (isDev && !API_BASE_URL) {
-    //   setDonations((prev) =>
-    //     prev.map((d) =>
-    //       d._id === donationId ? { ...d, status: "claimed" } : d
-    //     )
-    //   );
-    //   return;
-    // }
 
+  const handleClaim = async (donationId) => {
     try {
-      await axios.put(`http://localhost:5000/donations/${donationId}/claim`);
+      const res = await axios.put(
+        `http://localhost:5000/donations/${donationId}/claim`
+      );
+
+      // Update donation list
       setDonations((prev) =>
         prev.map((d) =>
           d._id === donationId ? { ...d, status: "claimed" } : d
         )
       );
+
+      // ✅ Open success popup with donation address
+      const claimedDonation = donations.find((d) => d._id === donationId);
+      if (claimedDonation?.address) {
+        setClaimedAddress(claimedDonation.address);
+      }
+      setSuccessOpen(true);
     } catch (err) {
       console.error("Error claiming donation:", err);
     }
@@ -83,6 +83,13 @@ const VolunteerDonationClaim = () => {
       ) : (
         <DonationList donations={donations} onClaim={handleClaim} />
       )}
+
+      {/* ✅ Success popup */}
+      <SuccessPage
+        open={successOpen}
+        address={claimedAddress}
+        onClose={() => setSuccessOpen(false)}
+      />
     </Layout>
   );
 };
