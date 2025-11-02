@@ -5,7 +5,7 @@ import {
     Snackbar, Alert, CircularProgress
 } from '@mui/material';
 import { LocationOn, AccessTime, Favorite, Send } from '@mui/icons-material';
-import FoodItemsForm from '../components/FoodItemsForm'; // ✅ new import
+import FoodItemsForm from './FoodItemsForm'; // ✅ new import
 
 export default function FoodDonationPage() {
     const [location, setLocation] = useState('');
