@@ -30,6 +30,22 @@ const theme = createTheme({
 });
 
 export default function HomePage() {
+  // Lazy import push helpers to avoid SSR issues
+  const handleSubscribe = async () => {
+    try {
+      // dynamic import so this runs only in browser
+      const push = await import("../notifications/push.js");
+      await push.subscribeUser();
+      // eslint-disable-next-line no-alert
+      alert("Subscribed to notifications");
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error("Push subscribe failed", err);
+      // eslint-disable-next-line no-alert
+      alert("Failed to subscribe to notifications: " + (err.message || err));
+    }
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -43,42 +59,44 @@ export default function HomePage() {
         }}
       >
         {/* Header */}
-            <AppBar
-              position="static"
-              color="primary"
-              sx={{
-                opacity: 0.95,
-                py: 2,
-                boxShadow: 5,
-              }}
-            >
-              <Toolbar
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  flexWrap: "wrap",
-                }}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <img
+        <AppBar
+          position="static"
+          color="primary"
+          sx={{
+            opacity: 0.95,
+            py: 2,
+            boxShadow: 5,
+          }}
+        >
+          <Toolbar
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <img
                 src="/logo.png"
                 alt="Bridge of Food Logo"
-                style={{ height: '150px', marginRight: '10px' }}
-                  />
-                </Box>
-                <Box>
-                  {["Home", "Donate Food", "Collect Donations"].map(
-                (item) => (
-                  <Button key={item} color="inherit" sx={{ mx: 1, fontSize: "1.5rem" }} >
-                    {item}
-                  </Button>
-                )
-                  )}
-                </Box>
-              </Toolbar>
-            </AppBar>
+                style={{ height: "150px", marginRight: "10px" }}
+              />
+            </Box>
+            <Box>
+              {["Home", "Donate Food", "Collect Donations"].map((item) => (
+                <Button
+                  key={item}
+                  color="inherit"
+                  sx={{ mx: 1, fontSize: "1.5rem" }}
+                >
+                  {item}
+                </Button>
+              ))}
+            </Box>
+          </Toolbar>
+        </AppBar>
 
-            {/* Hero Section */}
+        {/* Hero Section */}
         <Box
           sx={{
             textAlign: "center",
@@ -96,8 +114,8 @@ export default function HomePage() {
             Bridging Surplus & Need
           </Typography>
           <Typography variant="h6" sx={{ mb: 4 }}>
-            Turning leftover meals into meaningful help.  
-            Connect catering businesses, volunteers, and charities in real-time.
+            Turning leftover meals into meaningful help. Connect catering
+            businesses, volunteers, and charities in real-time.
           </Typography>
           <Button
             variant="contained"
@@ -220,7 +238,8 @@ export default function HomePage() {
           }}
         >
           <Typography variant="body1">
-            © {new Date().getFullYear()} FoodBridge — Connecting hearts through shared meals.
+            © {new Date().getFullYear()} FoodBridge — Connecting hearts through
+            shared meals.
           </Typography>
           <Typography variant="body2" sx={{ opacity: 0.9, mt: 1 }}>
             Together, we build a world with less waste and more kindness.

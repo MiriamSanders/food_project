@@ -7,7 +7,6 @@ export const createDonation = async (req, res) => {
       "Request Content-Type:",
       req.headers && req.headers["content-type"]
     );
-    console.log("Request Body:", req.body);
 
     // Basic validation before trying to construct a Mongoose model so we return clearer errors
     const { name, address, items, maxTime } = req.body || {};
@@ -36,7 +35,6 @@ export const createDonation = async (req, res) => {
     const donationData = { name, address, items, maxTime: parsedMaxTime };
 
     const donation = new Donation(donationData);
-    console.log("Donation document to save:", donation);
     await donation.save();
     res.status(201).json(donation);
   } catch (err) {
