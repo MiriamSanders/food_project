@@ -4,7 +4,7 @@ import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
 import connectDB from "./config/db.js";
-import { routesInit } from "./routes/config_routes.js";
+import routesInit from "./routes/config_routes.js";
 import * as donationsController from "./controllers/donationsController.js";
 
 dotenv.config();

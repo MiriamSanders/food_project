@@ -1,12 +1,12 @@
 import express from "express";
-import { getDonations, claimDonation } from "../controllers/donationsController.js";
+import { getDonations, claimDonation, createDonation } from "../controllers/donationsController.js";
 
 const router = express.Router();
 
-// GET /api/donations
 router.get("/", getDonations);
 
-// PUT /api/donations/:id/claim
 router.put("/:id/claim", claimDonation);
+
+router.post("/", createDonation);
 
 export default router;

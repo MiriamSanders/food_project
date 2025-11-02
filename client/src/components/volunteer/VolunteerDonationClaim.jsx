@@ -10,13 +10,20 @@ const VolunteerDonationClaim = () => {
   const [loading, setLoading] = useState(true);
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === "development";
 
   useEffect(() => {
-    const socket = io(API_BASE_URL);
-
     const fetchDonations = async () => {
       setLoading(true);
       try {
+        if (isDev && !API_BASE_URL) {
+          // נתוני דמו במידה ואין שרת
+          setTimeout(() => {
+            setDonations([]);
+            setLoading(false);
+          }, 500);
+          return;
+        }
         const res = await axios.get(`${API_BASE_URL}/donations`);
         setDonations(res.data);
       } catch (err) {
@@ -28,27 +35,39 @@ const VolunteerDonationClaim = () => {
 
     fetchDonations();
 
-    // מאזינים לאירועי Socket
-    socket.on("donationClaimed", (updatedDonation) => {
+    const socket = io(API_BASE_URL || "http://localhost:5000");
+
+
+    socket.on("donationCreated", (newDonation) => {
+      setDonations((prev) => [newDonation, ...prev]);
+    });
+
+    socket.on("donationUpdated", (updatedDonation) => {
       setDonations((prev) =>
-        prev.map((d) =>
-          d._id === updatedDonation._id ? updatedDonation : d
-        )
+        prev.map((d) => (d._id === updatedDonation._id ? updatedDonation : d))
       );
     });
 
-    // נקה את החיבור בעת סגירת הקומפוננטה
     return () => {
       socket.disconnect();
     };
-  }, [API_BASE_URL]);
+  }, [API_BASE_URL, isDev]);
 
   const handleClaim = async (donationId) => {
-    try {
-      const res = await axios.put(`${API_BASE_URL}/donations/${donationId}/claim`);
+    if (isDev && !API_BASE_URL) {
       setDonations((prev) =>
         prev.map((d) =>
-          d._id === donationId ? { ...d, status: "Claimed by you" } : d
+          d._id === donationId ? { ...d, status: "claimed" } : d
+        )
+      );
+      return;
+    }
+
+    try {
+      await axios.put(`${API_BASE_URL}/donations/${donationId}/claim`);
+      setDonations((prev) =>
+        prev.map((d) =>
+          d._id === donationId ? { ...d, status: "claimed" } : d
         )
       );
     } catch (err) {
