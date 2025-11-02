@@ -1,14 +1,40 @@
-import FoodDonationPage from './components/FoodDonationPage.jsx';
-import VolunteerDonationClaim from './components/volunteer/VolunteerDonationClaim'
-import './App.css'
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import LoginPage from "./auth/Login";
+import SignupPage from "./auth/Signup";
+import FoodDonationPage from "./components/donor/FoodDonationPage";
+import VolunteerDonationClaim from "./components/volunteer/VolunteerDonationClaim";
+import HomePage from "./components/HomePage";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-function App() {
+export default function App() {
   return (
-    <>
-     <FoodDonationPage />;
-    <VolunteerDonationClaim/>
-    </>
-  )
-}
+    <Router>
+      <Routes>
+        <Route path="/" element={<Navigate to="/home" />} />
+        <Route path="/home" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
 
-export default App;
+        {/* Protected routes */}
+        <Route 
+          path="/donation" 
+          element={
+            <ProtectedRoute allowedRoles={["donor"]}>
+              <FoodDonationPage />
+            </ProtectedRoute>
+          } 
+        />
+
+        <Route 
+          path="/claimdonation" 
+          element={
+            <ProtectedRoute allowedRoles={["volunteer"]}>
+              <VolunteerDonationClaim />
+            </ProtectedRoute>
+          } 
+        />
+      </Routes>
+    </Router>
+  );
+}

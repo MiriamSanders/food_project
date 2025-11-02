@@ -6,10 +6,15 @@ import {
   Typography,
   Button,
   Box,
+  List,
+  ListItem,
+  ListItemText,
 } from "@mui/material";
 
 const DonationCard = ({ donation, onClaim }) => {
-  const { id, hallName, address, foodType, quantity, status } = donation;
+  const { _id, name, address, items, maxTime, status } = donation;
+
+  const isAvailable = status === "pending";
 
   return (
     <Card
@@ -22,41 +27,56 @@ const DonationCard = ({ donation, onClaim }) => {
     >
       <CardContent>
         <Typography variant="h6" gutterBottom>
-          {hallName}
+          {name}
         </Typography>
         <Typography variant="body2" color="text.secondary">
           {address}
         </Typography>
 
         <Box mt={1}>
-          <Typography variant="body2">
-            <strong>Food:</strong> {foodType}
-          </Typography>
-          <Typography variant="body2">
-            <strong>Quantity:</strong> {quantity}
-          </Typography>
+          <Typography variant="subtitle2">Items:</Typography>
+          <List dense>
+            {items?.map((item, idx) => (
+              <ListItem key={idx} sx={{ py: 0 }}>
+                <ListItemText
+                  primary={`${item.food} - ${item.amount} ${item.unit}`}
+                />
+              </ListItem>
+            ))}
+          </List>
+
           <Typography
             variant="body2"
-            color={status === "Available" ? "success.main" : "info.main"}
+            color={
+              status === "pending"
+                ? "success.main"
+                : status === "claimed"
+                ? "info.main"
+                : "text.secondary"
+            }
             sx={{ mt: 1 }}
           >
-            {status}
+            {status.charAt(0).toUpperCase() + status.slice(1)}
+          </Typography>
+
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            Max Pickup: {new Date(maxTime).toLocaleString()}
           </Typography>
         </Box>
       </CardContent>
 
-      {status === "Available" && (
-        <CardActions>
-          <Button
-            variant="contained"
-            fullWidth
-            onClick={() => onClaim(id)}
-            sx={{ borderRadius: 2 }}
-          >
-            Claim
-          </Button>
-        </CardActions>
-      )}
+      <CardActions>
+        <Button
+          variant="contained"
+          fullWidth
+          onClick={() => onClaim(_id)}
+          sx={{ borderRadius: 2 }}
+          disabled={!isAvailable}
+          color={isAvailable ? "primary" : "inherit"}
+        >
+          {isAvailable ? "Claim" : "Claimed"}
+        </Button>
+      </CardActions>
     </Card>
   );
 };
