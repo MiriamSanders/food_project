@@ -5,7 +5,7 @@ import {
     Snackbar, Alert, CircularProgress
 } from '@mui/material';
 import { LocationOn, AccessTime, Favorite, Send } from '@mui/icons-material';
-import FoodItemsForm from '../components/FoodItemsForm'; // ✅ new import
+import FoodItemsForm from '../components/FoodItemsForm'; 
 
 export default function FoodDonationPage() {
     const [location, setLocation] = useState('');
@@ -68,7 +68,6 @@ export default function FoodDonationPage() {
         <Box
             sx={{
                 minHeight: '100vh',
-                width: '100vw',
                 overflowX: 'hidden',
                 display: 'flex',
                 flexDirection: 'column',

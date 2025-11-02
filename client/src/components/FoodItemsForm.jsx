@@ -30,7 +30,7 @@ export default function FoodItemsForm({ foodItems, setFoodItems }) {
                 <Stack key={index} direction={{ xs: 'column', sm: 'row' }} spacing={2} mb={2} alignItems="center">
                     <TextField
                         fullWidth
-                        label="Food item (e.g., Bananas, Canned Soup)"
+                        label="Food item (e.g., chicken,  split pea soup)"
                         value={item.food}
                         onChange={(e) => updateFoodItem(index, 'food', e.target.value)}
                     />
