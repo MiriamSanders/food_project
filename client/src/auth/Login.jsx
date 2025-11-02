@@ -1,10 +1,16 @@
 import React, { useState } from "react";
 import {
-  Box, Button, Typography, TextField, Stack, Snackbar, Alert
+  Box,
+  Button,
+  Typography,
+  TextField,
+  Stack,
+  Snackbar,
+  Alert
 } from "@mui/material";
 import { Favorite, Person } from "@mui/icons-material";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import { getUser } from "./api";
+import { loginUser } from "./api";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -15,18 +21,36 @@ export default function LoginPage() {
 
   const handleSnackbarClose = () => setSnackbar({ ...snackbar, open: false });
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    const user = await getUser(email);
-    if (user && user.password === password) {
-      setSnackbar({ open: true, message: "Login successful!", severity: "success" });
-      setTimeout(() => navigate("/dashboard"), 1000);
-    } else {
-      setSnackbar({ open: true, message: "Invalid email or password", severity: "error" });
-    }
-    setIsSubmitting(false);
-  };
+const handleLogin = async (e) => {
+  e.preventDefault();
+  setIsSubmitting(true);
+
+  const result = await loginUser({ email, password });
+
+  if (result && result.token) {
+    // Store user info and token locally
+    localStorage.setItem("token", result.token);
+    localStorage.setItem("user", JSON.stringify(result.user));
+
+    setSnackbar({ open: true, message: "Login successful!", severity: "success" });
+
+    // Navigate based on role after short delay
+    setTimeout(() => {
+      const role = result.user.role;
+      if (role === "donor") {
+        navigate("/donation");
+      } else if (role === "volunteer") {
+        navigate("/claimdonation");
+      } else {
+        navigate("/dashboard"); // fallback
+      }
+    }, 800);
+  } else {
+    setSnackbar({ open: true, message: "Invalid email or password", severity: "error" });
+  }
+
+  setIsSubmitting(false);
+};
 
   return (
     <Box
@@ -52,14 +76,9 @@ export default function LoginPage() {
           p: { xs: 3, sm: 4 },
         }}
       >
-        {/* Header with icon */}
         <Stack direction="row" alignItems="center" spacing={1} mb={3} justifyContent="center">
           <Favorite color="success" fontSize="large" />
-          <Typography
-            variant="h4"
-            fontWeight="bold"
-            fontFamily="Inter, sans-serif"
-          >
+          <Typography variant="h4" fontWeight="bold" fontFamily="Inter, sans-serif">
             Login
           </Typography>
         </Stack>

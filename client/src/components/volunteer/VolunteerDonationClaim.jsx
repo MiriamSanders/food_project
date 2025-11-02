@@ -2,41 +2,67 @@ import React, { useEffect, useState } from "react";
 import { Box, CircularProgress, Typography } from "@mui/material";
 import DonationList from "./DonationList";
 import Layout from "../layout/Layout";
+import axios from "axios";
+import { io } from "socket.io-client";
 
 const VolunteerDonationClaim = () => {
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setDonations([
-        {
-          id: 1,
-          hallName: "Simcha Hall",
-          address: "12 Ben Gurion St, Bnei Brak",
-          foodType: "Meat meals",
-          quantity: "20 portions",
-          status: "Available",
-        },
-        {
-          id: 2,
-          hallName: "Royal Events",
-          address: "45 Herzl St, Jerusalem",
-          foodType: "Dairy pastries",
-          quantity: "15 trays",
-          status: "Available",
-        },
-      ]);
-      setLoading(false);
-    }, 1000);
-  }, []);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === "development";
 
-  const handleClaim = (donationId) => {
-    setDonations((prev) =>
-      prev.map((d) =>
-        d.id === donationId ? { ...d, status: "Claimed by you" } : d
-      )
-    );
+  useEffect(() => {
+    const fetchDonations = async () => {
+      setLoading(true);
+
+      try {
+        // Wrap geolocation in a Promise to await it
+        const getCoordinates = () =>
+          new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(
+              (position) => resolve(position.coords),
+              (error) => reject(error)
+            );
+          });
+
+        const coords = await getCoordinates();
+        const { latitude, longitude } = coords;
+
+        const res = await axios.get(
+          `http://localhost:5000/donations?lat=${latitude}&lng=${longitude}`
+        );
+
+        setDonations(res.data);
+      } catch (err) {
+        console.error("Error fetching donations:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDonations();
+  }, []);
+  const handleClaim = async (donationId) => {
+    // if (isDev && !API_BASE_URL) {
+    //   setDonations((prev) =>
+    //     prev.map((d) =>
+    //       d._id === donationId ? { ...d, status: "claimed" } : d
+    //     )
+    //   );
+    //   return;
+    // }
+
+    try {
+      await axios.put(`http://localhost:5000/donations/${donationId}/claim`);
+      setDonations((prev) =>
+        prev.map((d) =>
+          d._id === donationId ? { ...d, status: "claimed" } : d
+        )
+      );
+    } catch (err) {
+      console.error("Error claiming donation:", err);
+    }
   };
 
   return (

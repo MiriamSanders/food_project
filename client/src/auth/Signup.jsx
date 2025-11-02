@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import {
-  Box, Button, Typography, TextField, Paper, Stack,
+  Box, Button, Typography, TextField, Stack,
   FormControl, InputLabel, Select, MenuItem, Snackbar, Alert
 } from "@mui/material";
-import { Favorite, Person, Home, AssignmentInd } from "@mui/icons-material";
+import { Favorite, Person, Home, AssignmentInd, Badge } from "@mui/icons-material";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import { setUser } from "./api";
+import { signupUser } from "./api";
 
 export default function SignupPage() {
   const navigate = useNavigate();
+  const [name, setName] = useState("");        // added
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [address, setAddress] = useState("");
@@ -18,25 +19,35 @@ export default function SignupPage() {
 
   const handleSnackbarClose = () => setSnackbar({ ...snackbar, open: false });
 
-  const handleSignup = async (e) => {
-    e.preventDefault();
-    if (!email || !password || !address || !role) {
-      setSnackbar({ open: true, message: "Please fill all fields", severity: "error" });
-      return;
-    }
+const handleSignup = async (e) => {
+  e.preventDefault();
+  if (!name || !email || !password || !address || !role) {
+    setSnackbar({ open: true, message: "Please fill all fields", severity: "error" });
+    return;
+  }
 
-    setIsSubmitting(true);
-    const newUser = { email, password, address, role };
-    const result = await setUser(newUser);
+  setIsSubmitting(true);
+  const newUser = { name, email, password, address, role };
+  const result = await signupUser(newUser);
 
-    if (result) {
-      setSnackbar({ open: true, message: "Signup successful!", severity: "success" });
-      setTimeout(() => navigate("/"), 1000);
-    } else {
-      setSnackbar({ open: true, message: "Signup failed. Try again.", severity: "error" });
-    }
-    setIsSubmitting(false);
-  };
+  if (result && result.token) { // <-- check token
+    setSnackbar({ open: true, message: "Signup successful!", severity: "success" });
+
+    // Navigate based on role after short delay
+    setTimeout(() => {
+      if (role === "donor") {
+        navigate("/donation");
+      } else if (role === "volunteer") {
+        navigate("/claimdonation");
+      } else {
+        navigate("/"); // fallback
+      }
+    }, 1000);
+  } else {
+    setSnackbar({ open: true, message: "Signup failed. Try again.", severity: "error" });
+  }
+  setIsSubmitting(false);
+};
 
   return (
     <Box
@@ -65,17 +76,21 @@ export default function SignupPage() {
         {/* Header with icon */}
         <Stack direction="row" alignItems="center" spacing={1} mb={3} justifyContent="center">
           <Favorite color="success" fontSize="large" />
-          <Typography
-            variant="h4"
-            fontWeight="bold"
-            fontFamily="Inter, sans-serif"
-          >
+          <Typography variant="h4" fontWeight="bold" fontFamily="Inter, sans-serif">
             Sign Up
           </Typography>
         </Stack>
 
         <Box component="form" onSubmit={handleSignup}>
           <Stack spacing={2}>
+            <TextField
+              label="Name"
+              fullWidth
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              InputProps={{ startAdornment: <Badge sx={{ mr: 1 }} /> }}
+            />
             <TextField
               label="Email"
               fullWidth
