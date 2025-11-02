@@ -1,11 +1,12 @@
-// Route registry
-import donations from "./donations.js";
-import userRoute from "./userRoute.js";
-// import donationRoutes from "./donationRoutes.js";
+// Route registry - use ESM exports to match server's ESM (package.json "type": "module")
+import donationRoutes from "./donationRoutes.js"; // or "./donations.js", pick one
+import userRoutes from "./userRoute.js";
 // import volunteerRoutes from "./volunteerRoutes.js";
 
 export default function routesInit(app) {
-  app.use("/users", userRoute);
-  app.use("/donations", donations);
+  // Register API route prefixes
+  app.use("/users", userRoutes);
+  app.use("/donations", donationRoutes); // or "donations" if you use that import
+
   // app.use('/volunteers', volunteerRoutes);
 }
