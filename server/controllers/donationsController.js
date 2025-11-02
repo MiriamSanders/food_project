@@ -1,4 +1,4 @@
-import Donation from "../models/donation.js";
+import Donation from "../models/Donation.js";
 
 let io;
 
