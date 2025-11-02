@@ -1,16 +1,52 @@
+// models/donation.js
 import mongoose from "mongoose";
 
-const DonationSchema = new mongoose.Schema(
-  {
-    hallName: { type: String, required: true },
-    address: { type: String, required: true },
-    foodType: { type: String, required: true },
-    quantity: { type: String, required: true },
-    status: { type: String, default: "Available" },
+const itemSchema = new mongoose.Schema({
+  food: {
+    type: String,
+    required: true,
+    trim: true
   },
-  { timestamps: true }
-);
+  amount: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  unit: {
+    type: String,
+    required: true,
+    trim: true
+  }
+});
 
-const Donation = mongoose.model("Donation", DonationSchema);
+const donationSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  address: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  items: {
+    type: [itemSchema],
+    required: true,
+    validate: v => Array.isArray(v) && v.length > 0
+  },
+  maxTime: {
+    type: Date,
+    required: true
+  },
+  status: {
+    type: String,
+    enum: ["pending", "claimed", "completed", "expired"],
+    default: "pending"
+  }
+}, {
+  timestamps: true
+});
 
+const Donation = mongoose.model("Donation", donationSchema);
 export default Donation;

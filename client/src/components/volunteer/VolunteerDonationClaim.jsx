@@ -16,14 +16,7 @@ const VolunteerDonationClaim = () => {
     const fetchDonations = async () => {
       setLoading(true);
       try {
-        if (isDev && !API_BASE_URL) {
-          setTimeout(() => {
-            setDonations([]);
-            setLoading(false);
-          }, 500);
-          return;
-        }
-        const res = await axios.get(`${API_BASE_URL}/donations`);
+        const res = await axios.get('http://localhost:5000/donations');
         setDonations(res.data);
       } catch (err) {
         console.error("Error fetching donations:", err);
@@ -53,17 +46,17 @@ const VolunteerDonationClaim = () => {
   }, [API_BASE_URL, isDev]);
 
   const handleClaim = async (donationId) => {
-    if (isDev && !API_BASE_URL) {
-      setDonations((prev) =>
-        prev.map((d) =>
-          d._id === donationId ? { ...d, status: "claimed" } : d
-        )
-      );
-      return;
-    }
+    // if (isDev && !API_BASE_URL) {
+    //   setDonations((prev) =>
+    //     prev.map((d) =>
+    //       d._id === donationId ? { ...d, status: "claimed" } : d
+    //     )
+    //   );
+    //   return;
+    // }
 
     try {
-      await axios.put(`${API_BASE_URL}/donations/${donationId}/claim`);
+      await axios.put(`http://localhost:5000/donations/${donationId}/claim`);
       setDonations((prev) =>
         prev.map((d) =>
           d._id === donationId ? { ...d, status: "claimed" } : d
