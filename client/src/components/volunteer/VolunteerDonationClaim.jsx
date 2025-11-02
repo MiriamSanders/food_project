@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Box, CircularProgress, Typography } from "@mui/material";
 import DonationList from "./DonationList";
+import Layout from "../layout/Layout";
 
 const VolunteerDonationClaim = () => {
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // מדמה בקשת API
   useEffect(() => {
-    setLoading(true);
     setTimeout(() => {
       setDonations([
         {
@@ -29,7 +28,7 @@ const VolunteerDonationClaim = () => {
         },
       ]);
       setLoading(false);
-    }, 1200);
+    }, 1000);
   }, []);
 
   const handleClaim = (donationId) => {
@@ -41,19 +40,24 @@ const VolunteerDonationClaim = () => {
   };
 
   return (
-    <Box sx={{ p: 4 }}>
-      <Typography variant="h5" fontWeight="bold" gutterBottom>
-        Available Donations
-      </Typography>
+    <Layout>
+      <Box sx={{ textAlign: "center", mb: 4 }}>
+        <Typography variant="h4" color="primary" fontWeight={700}>
+          Available Donations
+        </Typography>
+        <Typography color="text.secondary">
+          Choose a donation to claim and deliver.
+        </Typography>
+      </Box>
 
       {loading ? (
         <Box display="flex" justifyContent="center" mt={4}>
-          <CircularProgress />
+          <CircularProgress color="primary" />
         </Box>
       ) : (
         <DonationList donations={donations} onClaim={handleClaim} />
       )}
-    </Box>
+    </Layout>
   );
 };
 
