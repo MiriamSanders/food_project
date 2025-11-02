@@ -8,7 +8,7 @@ function getAuthToken() {
 /* Signup */
 export async function signupUser(userData) {
   try {
-    const response = await fetch(`${API_BASE}/users/signup`, {  // <-- add /signup
+    const response = await fetch(`${API_BASE}/users/signup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(userData),
@@ -19,13 +19,18 @@ export async function signupUser(userData) {
       throw new Error(errorData.error || "Failed to signup");
     }
 
-    return await response.json();
+    const data = await response.json();
+
+    // Save token and user to localStorage
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+
+    return data; // { user, token }
   } catch (err) {
     console.error("signupUser error:", err);
     return null;
   }
 }
-
 
 /* Login */
 export async function loginUser(credentials) {
