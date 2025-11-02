@@ -1,9 +1,10 @@
-import userRoutes from "./userRoutes.js";
-import donationRoutes from "./donationRoutes.js";
-import volunteerRoutes from "./volunteerRoutes.js";
+import userRoute from "./userRoute.js";
+// import donationRoutes from "./donationRoutes.js";
+// import volunteerRoutes from "./volunteerRoutes.js";
 
-exports.routesInit = (app) => {
-  app.use("./users", userRoutes);
-  app.use("./donations", donationRoutes);
-  app.use("./volunteers", volunteerRoutes);
-};
+export default function routesInit(app) {
+  app.use("/users", userRoute);
+  // app.use("/donations", donationRoutes);
+  // app.use("/volunteers", volunteerRoutes);
+}
+
