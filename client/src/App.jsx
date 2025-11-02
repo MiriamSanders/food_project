@@ -1,8 +1,8 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import LoginPage from "./shiffy/Login";
-import SignupPage from "./shiffy/Signup";
-import FoodDonationPage from "./components/FoodDonationPage";
+import LoginPage from "./auth/Login";
+import SignupPage from "./auth/Signup";
+import FoodDonationPage from "./components/donor/FoodDonationPage";
 import VolunteerDonationClaim from "./components/volunteer/VolunteerDonationClaim";
 import HomePage from "./components/HomePage";
 export default function App() {

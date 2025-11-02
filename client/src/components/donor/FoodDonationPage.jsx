@@ -33,12 +33,12 @@ export default function FoodDonationPage() {
                 (position) => {
                     setLocation(`Lat: ${position.coords.latitude.toFixed(7)}, Lng: ${position.coords.longitude.toFixed(7)}`);
                     fetch(`https://api.geoapify.com/v1/geocode/reverse?lat=${position.coords.latitude.toFixed(4)}&lon=${position.coords.longitude.toFixed(4)}&apiKey=9e8ff255619a4e1e98604808be9065e3`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.features && data.features.length > 0) {
-                            setLocation(data.features[0].properties.formatted);
-                        }
-                    });
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.features && data.features.length > 0) {
+                                setLocation(data.features[0].properties.formatted);
+                            }
+                        });
                     showSnackbar('Location detected successfully.', 'info');
                 },
                 () => {
@@ -73,7 +73,7 @@ export default function FoodDonationPage() {
             maxTime
         };
         console.log(donationData);
-        
+
         try {
             setIsSubmitting(true);
 
