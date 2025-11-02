@@ -1,46 +1,58 @@
+import dotenv from "dotenv";
 import express from "express";
+import http from "http";
+import { Server } from "socket.io";
 import cors from "cors";
-import routesInit from "./routes/config_routes.js";
 import connectDB from "./config/db.js";
-import { startCronJobs } from "./cronJob.js";
+import routesInit from "./routes/config_routes.js";
+import * as donationsController from "./controllers/donationsController.js";
+import { startCronJobs } from "./cronJobs.js";
+
+dotenv.config();
 
 const app = express();
+const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 
-// Connect to MongoDB
-await connectDB();
+// Socket.io setup
+const io = new Server(server, { cors: { origin: "*" } });
+donationsController.setSocket(io);
+
+io.on("connection", (socket) => {
+  console.log("New client connected:", socket.id);
+  socket.on("disconnect", () => console.log("Client disconnected:", socket.id));
+});
 
 // Middleware
 app.use(cors());
 app.use(express.json());
-// Parse URL-encoded bodies (for form submissions)
 app.use(express.urlencoded({ extended: true }));
+app.use(express.text({ type: ["text/plain", "text/*"] }));
 
-// Also accept plain/text bodies and attempt to coerce JSON when the client sent
-// JSON with Content-Type: text/plain (some clients/tools do this).
-app.use(express.text({ type: ['text/plain', 'text/*'] }));
+// Handle stringified JSON
 app.use((req, res, next) => {
-  // If body is a string, try to parse JSON out of it. If parse fails, leave as-is.
-  if (typeof req.body === 'string') {
+  if (typeof req.body === "string") {
     try {
-      const parsed = JSON.parse(req.body);
-      req.body = parsed;
+      req.body = JSON.parse(req.body);
     } catch (e) {
-      // not JSON — leave req.body as the raw string
+      // leave as string if not valid JSON
     }
   }
   next();
 });
-// Start server after DB connection is established
+
+// Start server after DB connection
 const start = async () => {
   try {
     await connectDB();
-    // Register routes after DB is ready
+    // Start cron jobs
     startCronJobs();
+    // Register routes
     routesInit(app);
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    // Start server
+    server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   } catch (err) {
-    console.error('Failed to start server due to DB connection error');
+    console.error("Failed to start server due to DB connection error", err);
     process.exit(1);
   }
 };
