@@ -9,13 +9,12 @@ import {
   Grid,
   Card,
   CardContent,
-  CardActions,
   CssBaseline,
   ThemeProvider,
   createTheme,
 } from "@mui/material";
 import { Restaurant, VolunteerActivism, Group } from "@mui/icons-material";
-
+import { useNavigate } from "react-router-dom";
 const theme = createTheme({
   palette: {
     primary: { main: "#88B04B" }, // green
@@ -30,6 +29,7 @@ const theme = createTheme({
 });
 
 export default function HomePage() {
+  const navigate = useNavigate();
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -43,42 +43,62 @@ export default function HomePage() {
         }}
       >
         {/* Header */}
-            <AppBar
-              position="static"
-              color="primary"
-              sx={{
-                opacity: 0.95,
-                py: 2,
-                boxShadow: 5,
-              }}
-            >
-              <Toolbar
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  flexWrap: "wrap",
-                }}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <img
+        <AppBar
+          position="static"
+          color="primary"
+          sx={{ opacity: 0.95, py: 1, boxShadow: 5 }}
+        >
+          <Toolbar
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <img
                 src="/logo.png"
                 alt="Bridge of Food Logo"
-                style={{ height: '150px', marginRight: '10px' }}
-                  />
-                </Box>
-                <Box>
-                  {["Home", "Donate Food", "Collect Donations"].map(
-                (item) => (
-                  <Button key={item} color="inherit" sx={{ mx: 1, fontSize: "1.5rem" }} >
-                    {item}
-                  </Button>
-                )
-                  )}
-                </Box>
-              </Toolbar>
-            </AppBar>
+                style={{ height: "80px", marginRight: "10px" }}
+              />
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                FoodBridge
+              </Typography>
+            </Box>
+            <Box>
 
-            {/* Hero Section */}
+              <Box>
+                {["Home", "About", "Sign Up", "Login"].map((item) => {
+                  // Map the button label to a route path
+                  const pathMap = {
+                    Home: "/home",
+                    About: "/about",
+                    "Sign Up": "/signup",
+                    Login: "/login",
+                  };
+                  return (
+                    <Button
+                      key={item}
+                      color="inherit"
+                      sx={{
+                        mx: 1,
+                        fontSize: { xs: "0.9rem", md: "1rem" },
+                        textTransform: "none",
+                        "&:hover": { backgroundColor: "rgba(255,255,255,0.2)" },
+                      }}
+                      onClick={() => navigate(pathMap[item])}
+                    >
+                      {item}
+                    </Button>
+                  );
+                })}
+              </Box>
+
+            </Box>
+          </Toolbar>
+        </AppBar>
+
+        {/* Hero Section */}
         <Box
           sx={{
             textAlign: "center",
@@ -96,14 +116,14 @@ export default function HomePage() {
             Bridging Surplus & Need
           </Typography>
           <Typography variant="h6" sx={{ mb: 4 }}>
-            Turning leftover meals into meaningful help.  
+            Turning leftover meals into meaningful help.
             Connect catering businesses, volunteers, and charities in real-time.
           </Typography>
           <Button
             variant="contained"
             color="primary"
             size="large"
-            sx={{ mr: 2, px: 4, py: 1.2 }}
+            sx={{ mr: 2, px: 4, py: 1.5 }}
           >
             Offer Food
           </Button>
@@ -111,7 +131,7 @@ export default function HomePage() {
             variant="outlined"
             color="primary"
             size="large"
-            sx={{ px: 4, py: 1.2 }}
+            sx={{ px: 4, py: 1.5 }}
           >
             Collect Food
           </Button>
@@ -119,93 +139,53 @@ export default function HomePage() {
 
         {/* Feature Section */}
         <Container sx={{ mt: 12, mb: 12 }}>
-          <Grid
-            container
-            spacing={4}
-            justifyContent="center"
-            alignItems="flex-start"
-            sx={{
-              position: "relative",
-              "& .feature-card": {
-                transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                "&:hover": {
-                  transform: "translateY(-8px)",
-                  boxShadow: 6,
-                },
+          <Grid container spacing={4} justifyContent="center" alignItems="flex-start">
+            {[
+              {
+                icon: <Restaurant fontSize="large" color="primary" />,
+                title: "Catering Surplus",
+                desc: "Easily post extra meals from events or kitchens.",
+                mt: 6,
               },
-            }}
-          >
-            <Grid item xs={12} sm={6} md={4}>
-              <Card
-                className="feature-card"
-                sx={{
-                  textAlign: "center",
-                  p: 3,
-                  borderRadius: 3,
-                  bgcolor: "rgba(255,255,255,0.92)",
-                  boxShadow: 4,
-                  mt: 6,
-                }}
-              >
-                <CardContent>
-                  <Restaurant fontSize="large" color="primary" />
-                  <Typography variant="h5" sx={{ mt: 2, mb: 1 }}>
-                    Catering Surplus
-                  </Typography>
-                  <Typography variant="body1">
-                    Easily post extra meals from events or kitchens.
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            <Grid item xs={12} sm={6} md={4}>
-              <Card
-                className="feature-card"
-                sx={{
-                  textAlign: "center",
-                  p: 3,
-                  borderRadius: 3,
-                  bgcolor: "rgba(255,255,255,0.95)",
-                  boxShadow: 6,
-                  transform: { md: "translateY(-40px)" },
-                }}
-              >
-                <CardContent>
-                  <VolunteerActivism fontSize="large" color="primary" />
-                  <Typography variant="h5" sx={{ mt: 2, mb: 1 }}>
-                    Volunteer Pickup
-                  </Typography>
-                  <Typography variant="body1">
-                    Join local volunteers who collect and deliver donations.
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            <Grid item xs={12} sm={6} md={4}>
-              <Card
-                className="feature-card"
-                sx={{
-                  textAlign: "center",
-                  p: 3,
-                  borderRadius: 3,
-                  bgcolor: "rgba(255,255,255,0.92)",
-                  boxShadow: 4,
-                  mt: 6,
-                }}
-              >
-                <CardContent>
-                  <Group fontSize="large" color="primary" />
-                  <Typography variant="h5" sx={{ mt: 2, mb: 1 }}>
-                    Community Impact
-                  </Typography>
-                  <Typography variant="body1">
-                    Help reduce waste and feed those in need.
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
+              {
+                icon: <VolunteerActivism fontSize="large" color="primary" />,
+                title: "Volunteer Pickup",
+                desc: "Join local volunteers who collect and deliver donations.",
+                mt: 0,
+              },
+              {
+                icon: <Group fontSize="large" color="primary" />,
+                title: "Community Impact",
+                desc: "Help reduce waste and feed those in need.",
+                mt: 6,
+              },
+            ].map((feature, index) => (
+              <Grid item xs={12} sm={6} md={4} key={index}>
+                <Card
+                  sx={{
+                    textAlign: "center",
+                    p: 3,
+                    borderRadius: 3,
+                    bgcolor: "rgba(255,255,255,0.93)",
+                    boxShadow: 4,
+                    mt: feature.mt,
+                    transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                    "&:hover": {
+                      transform: "translateY(-8px)",
+                      boxShadow: 6,
+                    },
+                  }}
+                >
+                  <CardContent>
+                    {feature.icon}
+                    <Typography variant="h5" sx={{ mt: 2, mb: 1 }}>
+                      {feature.title}
+                    </Typography>
+                    <Typography variant="body1">{feature.desc}</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
           </Grid>
         </Container>
 
