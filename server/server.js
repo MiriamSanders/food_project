@@ -6,11 +6,8 @@ import cors from "cors";
 import connectDB from "./config/db.js";
 import routesInit from "./routes/config_routes.js";
 import * as donationsController from "./controllers/donationsController.js";
-import { startCronJobs } from "./cronJobs.js";
-
+//  import { startCronJobs } from "./cronJob.js";
 dotenv.config();
-import connectDB from "./config/db.js";
-import { startCronJobs } from "./cronJob.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -48,7 +45,7 @@ const start = async () => {
   try {
     await connectDB();
     // Start cron jobs
-    startCronJobs();
+    // startCronJobs();
     // Register routes
     routesInit(app);
     // Start server

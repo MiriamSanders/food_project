@@ -1,5 +1,5 @@
 import cron from "node-cron";
-import Donation from "./models/donation.js"; // adjust path as needed
+import Donation from "./models/Donation.js"; // adjust path as needed
 
 export const startCronJobs = () => {
   // Run every hour
