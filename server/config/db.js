@@ -13,11 +13,10 @@ if (!MONGO_URI) {
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log('MongoDB connected successfully');
+    dotenv.config();
+    console.log("MONGO_URI:", process.env.MONGO_URI);
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log('MongoDB Connected');
   } catch (err) {
     console.error('MongoDB connection error:', err.message);
     process.exit(1);
