@@ -24,13 +24,30 @@ io.on("connection", (socket) => {
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.text({ type: ["text/plain", "text/*"] }));
+app.use((req, res, next) => {
+  if (typeof req.body === "string") {
+    try {
+      req.body = JSON.parse(req.body);
+    } catch (e) {
+      // leave as string
+    }
+  }
+  next();
+});
 
-// Routes
-routesInit(app);
-
-// MongoDB
-connectDB();
-
-// Start server
+// Start server after DB connection
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const start = async () => {
+  try {
+    await connectDB();
+    routesInit(app);
+    server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  } catch (err) {
+    console.error("Failed to start server due to DB connection error", err);
+    process.exit(1);
+  }
+};
+
+start();

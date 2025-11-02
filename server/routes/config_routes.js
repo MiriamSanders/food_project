@@ -1,9 +1,11 @@
+// Route registry
+import donationRoutes from "./donationRoutes.js";
 // import userRoutes from "./userRoutes.js";
-import donationRoutes from "./donations.js";
 // import volunteerRoutes from "./volunteerRoutes.js";
 
-export const routesInit = (app) => {
-  // app.use("/users", userRoutes);
+export default function routesInit(app) {
+  // Register API route prefixes
+  // app.use('/users', userRoutes);
   app.use("/donations", donationRoutes);
-  // app.use("/volunteers", volunteerRoutes);
-};
+  // app.use('/volunteers', volunteerRoutes);
+}
