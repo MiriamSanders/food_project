@@ -2,41 +2,58 @@ import React, { useEffect, useState } from "react";
 import { Box, CircularProgress, Typography } from "@mui/material";
 import DonationList from "./DonationList";
 import Layout from "../layout/Layout";
+import axios from "axios";
+import { io } from "socket.io-client";
 
 const VolunteerDonationClaim = () => {
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setDonations([
-        {
-          id: 1,
-          hallName: "Simcha Hall",
-          address: "12 Ben Gurion St, Bnei Brak",
-          foodType: "Meat meals",
-          quantity: "20 portions",
-          status: "Available",
-        },
-        {
-          id: 2,
-          hallName: "Royal Events",
-          address: "45 Herzl St, Jerusalem",
-          foodType: "Dairy pastries",
-          quantity: "15 trays",
-          status: "Available",
-        },
-      ]);
-      setLoading(false);
-    }, 1000);
-  }, []);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  const handleClaim = (donationId) => {
-    setDonations((prev) =>
-      prev.map((d) =>
-        d.id === donationId ? { ...d, status: "Claimed by you" } : d
-      )
-    );
+  useEffect(() => {
+    const socket = io(API_BASE_URL);
+
+    const fetchDonations = async () => {
+      setLoading(true);
+      try {
+        const res = await axios.get(`${API_BASE_URL}/donations`);
+        setDonations(res.data);
+      } catch (err) {
+        console.error("Error fetching donations:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDonations();
+
+    // מאזינים לאירועי Socket
+    socket.on("donationClaimed", (updatedDonation) => {
+      setDonations((prev) =>
+        prev.map((d) =>
+          d._id === updatedDonation._id ? updatedDonation : d
+        )
+      );
+    });
+
+    // נקה את החיבור בעת סגירת הקומפוננטה
+    return () => {
+      socket.disconnect();
+    };
+  }, [API_BASE_URL]);
+
+  const handleClaim = async (donationId) => {
+    try {
+      const res = await axios.put(`${API_BASE_URL}/donations/${donationId}/claim`);
+      setDonations((prev) =>
+        prev.map((d) =>
+          d._id === donationId ? { ...d, status: "Claimed by you" } : d
+        )
+      );
+    } catch (err) {
+      console.error("Error claiming donation:", err);
+    }
   };
 
   return (

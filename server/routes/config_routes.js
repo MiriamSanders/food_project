@@ -1,9 +1,9 @@
-import userRoutes from "./userRoutes.js";
-import donationRoutes from "./donationRoutes.js";
-import volunteerRoutes from "./volunteerRoutes.js";
+// import userRoutes from "./userRoutes.js";
+import donationRoutes from "./donations.js";
+// import volunteerRoutes from "./volunteerRoutes.js";
 
-exports.routesInit = (app) => {
-  app.use("./users", userRoutes);
-  app.use("./donations", donationRoutes);
-  app.use("./volunteers", volunteerRoutes);
+export const routesInit = (app) => {
+  // app.use("/users", userRoutes);
+  app.use("/donations", donationRoutes);
+  // app.use("/volunteers", volunteerRoutes);
 };

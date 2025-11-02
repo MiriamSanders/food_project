@@ -9,7 +9,9 @@ import {
 } from "@mui/material";
 
 const DonationCard = ({ donation, onClaim }) => {
-  const { id, hallName, address, foodType, quantity, status } = donation;
+  const { _id, hallName, address, foodType, quantity, status } = donation;
+
+  const isAvailable = status === "Available";
 
   return (
     <Card
@@ -37,7 +39,7 @@ const DonationCard = ({ donation, onClaim }) => {
           </Typography>
           <Typography
             variant="body2"
-            color={status === "Available" ? "success.main" : "info.main"}
+            color={isAvailable ? "success.main" : "info.main"}
             sx={{ mt: 1 }}
           >
             {status}
@@ -45,18 +47,18 @@ const DonationCard = ({ donation, onClaim }) => {
         </Box>
       </CardContent>
 
-      {status === "Available" && (
-        <CardActions>
-          <Button
-            variant="contained"
-            fullWidth
-            onClick={() => onClaim(id)}
-            sx={{ borderRadius: 2 }}
-          >
-            Claim
-          </Button>
-        </CardActions>
-      )}
+      <CardActions>
+        <Button
+          variant="contained"
+          fullWidth
+          onClick={() => onClaim(_id)}
+          sx={{ borderRadius: 2 }}
+          disabled={!isAvailable} // אם לא זמין, הכפתור מושבת
+          color={isAvailable ? "primary" : "inherit"} // אם לא זמין, צבע אפור
+        >
+          {isAvailable ? "Claim" : "Claimed"}
+        </Button>
+      </CardActions>
     </Card>
   );
 };
