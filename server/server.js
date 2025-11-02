@@ -2,8 +2,7 @@ import express from "express";
 import cors from "cors";
 import routesInit from "./routes/config_routes.js";
 import connectDB from "./config/db.js";
-import { startCronJobs } from "./cronJobs.js";
-const PORT = process.env.PORT || 5000;
+import { startCronJobs } from "./cronJob.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
