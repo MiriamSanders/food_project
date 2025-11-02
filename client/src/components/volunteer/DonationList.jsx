@@ -12,7 +12,7 @@ const DonationList = ({ donations, onClaim }) => {
 
   return (
     <Grid container spacing={3}>
-      {donations.map((donation) => (
+      {donations?.map((donation) => (
         <Grid item xs={12} md={6} lg={4} key={donation._id}>
           <DonationCard donation={donation} onClaim={onClaim} />
         </Grid>

@@ -18,23 +18,20 @@ export const getDonations = async (req, res) => {
 
 export const createDonation = async (req, res) => {
   try {
-    const { name, address, items, maxTime } = req.body || {};
+    const { hallName, address, foodType, quantity } = req.body || {};
 
-    if (!name || !address || !Array.isArray(items) || items.length === 0 || !maxTime) {
+    // בדיקה של השדות הנדרשים
+    if (!hallName || !address || !foodType || !quantity) {
       return res.status(400).json({
-        message:
-          "Missing required fields: name, address, items (array), maxTime",
+        message: "Missing required fields: hallName, address, foodType, quantity",
       });
     }
 
-    const parsedMaxTime = new Date(maxTime);
-    if (isNaN(parsedMaxTime.getTime()))
-      return res.status(400).json({ message: "Invalid maxTime date" });
-
-    const donation = new Donation({ name, address, items, maxTime: parsedMaxTime });
+    const donation = new Donation({ hallName, address, foodType, quantity });
     await donation.save();
 
-    io.emit("donationCreated", donation);
+    // שידור אירוע דרך Socket.IO
+    if (io) io.emit("donationCreated", donation);
 
     res.status(201).json(donation);
   } catch (err) {
@@ -52,7 +49,7 @@ export const claimDonation = async (req, res) => {
     donation.status = "claimed";
     await donation.save();
 
-    io.emit("donationUpdated", donation);
+    if (io) io.emit("donationUpdated", donation);
 
     res.json(donation);
   } catch (err) {

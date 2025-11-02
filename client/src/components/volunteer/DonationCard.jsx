@@ -14,7 +14,6 @@ import {
 const DonationCard = ({ donation, onClaim }) => {
   const { _id, name, address, items, maxTime, status } = donation;
 
-  // האם התרומה זמינה לתפיסה
   const isAvailable = status === "pending";
 
   return (
@@ -37,7 +36,7 @@ const DonationCard = ({ donation, onClaim }) => {
         <Box mt={1}>
           <Typography variant="subtitle2">Items:</Typography>
           <List dense>
-            {items.map((item, idx) => (
+            {items?.map((item, idx) => (
               <ListItem key={idx} sx={{ py: 0 }}>
                 <ListItemText
                   primary={`${item.food} - ${item.amount} ${item.unit}`}

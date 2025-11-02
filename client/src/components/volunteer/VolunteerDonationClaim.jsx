@@ -17,7 +17,6 @@ const VolunteerDonationClaim = () => {
       setLoading(true);
       try {
         if (isDev && !API_BASE_URL) {
-          // נתוני דמו במידה ואין שרת
           setTimeout(() => {
             setDonations([]);
             setLoading(false);
