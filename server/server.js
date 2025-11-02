@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import routesInit from "./routes/config_routes.js";
 import connectDB from "./config/db.js";
-
+import { startCronJobs } from "./cronJobs.js";
 const PORT = process.env.PORT || 5000;
 
 const app = express();
@@ -26,12 +26,12 @@ app.use((req, res, next) => {
   }
   next();
 });
-
 // Start server after DB connection is established
 const start = async () => {
   try {
     await connectDB();
     // Register routes after DB is ready
+    startCronJobs();
     routesInit(app);
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   } catch (err) {
