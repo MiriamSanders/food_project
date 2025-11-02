@@ -5,6 +5,7 @@ import SignupPage from "./auth/Signup";
 import FoodDonationPage from "./components/donor/FoodDonationPage";
 import VolunteerDonationClaim from "./components/volunteer/VolunteerDonationClaim";
 import HomePage from "./components/HomePage";
+import SuccessPage from "./components/volunteer/SuccessPAge";
 export default function App() {
   return (
     <Router>
@@ -14,7 +15,7 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/donation" element={<FoodDonationPage />} />
-        <Route path="/claim" element={<VolunteerDonationClaim />} />
+        <Route path="/claimdonation" element={<VolunteerDonationClaim />} />
       </Routes>
     </Router>
   );
