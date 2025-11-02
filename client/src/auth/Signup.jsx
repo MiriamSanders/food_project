@@ -30,7 +30,7 @@ const handleSignup = async (e) => {
   const newUser = { name, email, password, address, role };
   const result = await signupUser(newUser);
 
-  if (result) {
+  if (result && result.token) { // <-- check token
     setSnackbar({ open: true, message: "Signup successful!", severity: "success" });
 
     // Navigate based on role after short delay
@@ -43,12 +43,12 @@ const handleSignup = async (e) => {
         navigate("/"); // fallback
       }
     }, 1000);
-    
   } else {
     setSnackbar({ open: true, message: "Signup failed. Try again.", severity: "error" });
   }
   setIsSubmitting(false);
 };
+
   return (
     <Box
       sx={{
