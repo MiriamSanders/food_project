@@ -15,8 +15,24 @@ const VolunteerDonationClaim = () => {
   useEffect(() => {
     const fetchDonations = async () => {
       setLoading(true);
+
       try {
-        const res = await axios.get('http://localhost:5000/donations');
+        // Wrap geolocation in a Promise to await it
+        const getCoordinates = () =>
+          new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(
+              (position) => resolve(position.coords),
+              (error) => reject(error)
+            );
+          });
+
+        const coords = await getCoordinates();
+        const { latitude, longitude } = coords;
+
+        const res = await axios.get(
+          `http://localhost:5000/donations?lat=${latitude}&lng=${longitude}`
+        );
+
         setDonations(res.data);
       } catch (err) {
         console.error("Error fetching donations:", err);
@@ -26,25 +42,7 @@ const VolunteerDonationClaim = () => {
     };
 
     fetchDonations();
-
-    const socket = io(API_BASE_URL || "http://localhost:5000");
-
-
-    socket.on("donationCreated", (newDonation) => {
-      setDonations((prev) => [newDonation, ...prev]);
-    });
-
-    socket.on("donationUpdated", (updatedDonation) => {
-      setDonations((prev) =>
-        prev.map((d) => (d._id === updatedDonation._id ? updatedDonation : d))
-      );
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, [API_BASE_URL, isDev]);
-
+  }, []);
   const handleClaim = async (donationId) => {
     // if (isDev && !API_BASE_URL) {
     //   setDonations((prev) =>

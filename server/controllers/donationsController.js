@@ -1,5 +1,6 @@
 import Donation from "../models/donationModel.js";
-
+import { getDistance } from "geolib";
+import fetch from "node-fetch";
 let io;
 
 export const setSocket = (socketIo) => {
@@ -8,7 +9,38 @@ export const setSocket = (socketIo) => {
 
 export const getDonations = async (req, res) => {
   try {
-    const donations = await Donation.find().sort({ createdAt: -1 });
+    const { lat, lng } = req.query;
+    if (!lat || !lng) return res.status(400).json({ message: "Missing coordinates" });
+
+    const donations = await Donation.find({
+      status: { $nin: ["expired", "claimed"] } // exclude both expired and claimed
+    }).sort({ createdAt: -1 });
+
+    console.log(donations);
+
+    // const filtered = [];
+    // for (let donation of donations) {
+    //   // Geocode the donation address (example using Nominatim)
+    //   const geoRes = await fetch(
+    //     `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(
+    //       donation.address
+    //     )}&format=json&limit=1`
+    //   );
+    //   const geoData = await geoRes.json();
+    //   if (!geoData[0]) continue;
+
+    //   const donationLat = parseFloat(geoData[0].lat);
+    //   const donationLng = parseFloat(geoData[0].lon);
+
+    //   const distance = getDistance(
+    //     { latitude: parseFloat(lat), longitude: parseFloat(lng) },
+    //     { latitude: donationLat, longitude: donationLng }
+    //   );
+    //   console.log(distance);
+    //   if (distance <= 15000) filtered.push(donation); // 15 km
+    // }
+    // console.log(filtered);
+
     res.json(donations);
   } catch (err) {
     console.error(err);
@@ -53,7 +85,7 @@ export const createDonation = async (req, res) => {
     const donation = new Donation(donationData);
     console.log("Donation document to save:", donation);
     await donation.save();
-     if (io) io.emit("donationCreated", donation);
+    if (io) io.emit("donationCreated", donation);
     res.status(201).json(donation);
   } catch (err) {
     console.log("Error creating donation:", err);
@@ -69,7 +101,7 @@ export const claimDonation = async (req, res) => {
   const { id } = req.params;
   try {
     console.log(id);
-    
+
     const donation = await Donation.findById(id);
     if (!donation) return res.status(404).json({ message: "Donation not found" });
 
