@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useState} from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./auth/Login";
 import SignupPage from "./auth/Signup";
@@ -8,13 +8,14 @@ import HomePage from "./components/HomePage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
+  const [role, setRole] = React.useState("");
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Navigate to="/home" />} />
-        <Route path="/home" element={<HomePage />} />
+        <Route path="/home" element={<HomePage setRole={setRole} />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/signup" element={<SignupPage userRole={role}/>} />
 
         {/* Protected routes */}
         <Route 

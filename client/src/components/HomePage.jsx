@@ -28,7 +28,7 @@ const theme = createTheme({
   },
 });
 
-export default function HomePage() {
+export default function HomePage({setRole}) {
   const navigate = useNavigate();
   return (
     <ThemeProvider theme={theme}>
@@ -124,6 +124,7 @@ export default function HomePage() {
             color="primary"
             size="large"
             sx={{ mr: 2, px: 4, py: 1.5 }}
+            onClick={() =>{ setRole('donor'); navigate("/signup")}}
           >
             Offer Food
           </Button>
@@ -132,6 +133,7 @@ export default function HomePage() {
             color="primary"
             size="large"
             sx={{ px: 4, py: 1.5 }}
+             onClick={() =>{ setRole('volunteer'); navigate("/signup")}}
           >
             Collect Food
           </Button>

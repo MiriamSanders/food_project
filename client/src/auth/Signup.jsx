@@ -7,13 +7,13 @@ import { Favorite, Person, Home, AssignmentInd, Badge } from "@mui/icons-materia
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { signupUser } from "./api";
 
-export default function SignupPage() {
+export default function SignupPage({userRole}) {
   const navigate = useNavigate();
   const [name, setName] = useState("");        // added
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [address, setAddress] = useState("");
-  const [role, setRole] = useState("");
+  const [role, setRole] = useState(userRole||"");
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
