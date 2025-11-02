@@ -5,7 +5,7 @@ import {
     Snackbar, Alert, CircularProgress
 } from '@mui/material';
 import { LocationOn, AccessTime, Favorite, Send } from '@mui/icons-material';
-import FoodItemsForm from '../components/FoodItemsForm'; 
+import FoodItemsForm from '../components/FoodItemsForm';
 
 export default function FoodDonationPage() {
     const [location, setLocation] = useState('');
@@ -31,7 +31,14 @@ export default function FoodDonationPage() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
-                    setLocation(`Lat: ${position.coords.latitude.toFixed(4)}, Lng: ${position.coords.longitude.toFixed(4)}`);
+                    setLocation(`Lat: ${position.coords.latitude.toFixed(7)}, Lng: ${position.coords.longitude.toFixed(7)}`);
+                    fetch(`https://api.geoapify.com/v1/geocode/reverse?lat=${position.coords.latitude.toFixed(4)}&lon=${position.coords.longitude.toFixed(4)}&apiKey=9e8ff255619a4e1e98604808be9065e3`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.features && data.features.length > 0) {
+                            setLocation(data.features[0].properties.formatted);
+                        }
+                    });
                     showSnackbar('Location detected successfully.', 'info');
                 },
                 () => {
@@ -43,7 +50,7 @@ export default function FoodDonationPage() {
         }
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!location || !pickupTime) {
             showSnackbar('Please fill in location and pickup time!', 'error');
             return;
@@ -54,15 +61,45 @@ export default function FoodDonationPage() {
             return;
         }
 
-        setIsSubmitting(true);
-        setTimeout(() => {
-            showSnackbar('Donation submitted successfully! (Data saved locally for demo)', 'success');
+        // 🧠 Convert pickupTime (HH:mm) to a proper Date for today
+        const today = new Date();
+        const [hours, minutes] = pickupTime.split(':');
+        const maxTime = new Date(today.setHours(hours, minutes));
+
+        const donationData = {
+            name: "Anonymous Donor", // or replace with a real name field later
+            address: location,
+            items: validFoodItems,
+            maxTime
+        };
+        console.log(donationData);
+        
+        try {
+            setIsSubmitting(true);
+
+            const res = await fetch("http://localhost:5000/donations", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(donationData)
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.message || "Failed to submit donation");
+            }
+
+            showSnackbar("Donation submitted successfully!", "success");
             setLocation('');
             setPickupTime('');
             setFoodItems([{ food: '', amount: '', unit: 'kg' }]);
+        } catch (err) {
+            console.error(err);
+            showSnackbar(err.message || "Something went wrong", "error");
+        } finally {
             setIsSubmitting(false);
-        }, 1500);
+        }
     };
+
 
     return (
         <Box
