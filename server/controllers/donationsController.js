@@ -10,13 +10,12 @@ export const setSocket = (socketIo) => {
 export const getDonations = async (req, res) => {
   try {
     const { lat, lng } = req.query;
-    if (!lat || !lng) return res.status(400).json({ message: "Missing coordinates" });
+    if (!lat || !lng)
+      return res.status(400).json({ message: "Missing coordinates" });
 
     const donations = await Donation.find({
-      status: { $nin: ["expired", "claimed"] } // exclude both expired and claimed
+      status: { $nin: ["expired", "claimed"] }, // exclude both expired and claimed
     }).sort({ createdAt: -1 });
-
-    console.log(donations);
 
     // const filtered = [];
     // for (let donation of donations) {
@@ -89,7 +88,6 @@ export const createDonation = async (req, res) => {
     res.status(201).json(donation);
   } catch (err) {
     console.log("Error creating donation:", err);
-    // Return Mongoose validation details when available
     if (err.name === "ValidationError") {
       return res.status(400).json({ message: err.message, errors: err.errors });
     }
@@ -100,18 +98,53 @@ export const createDonation = async (req, res) => {
 export const claimDonation = async (req, res) => {
   const { id } = req.params;
   try {
-    console.log(id);
-
     const donation = await Donation.findById(id);
-    if (!donation) return res.status(404).json({ message: "Donation not found" });
+    if (!donation)
+      return res.status(404).json({ message: "Donation not found" });
+    const { id: volunteerId, name: volunteerName } = req.user;
+
+    if (donation.status !== "pending")
+      return res
+        .status(400)
+        .json({ message: "Donation already claimed or completed" });
 
     donation.status = "claimed";
-    console.log(donation);
-    await donation.save();
+    donation.volunteerId = volunteerId;
+    donation.volunteerName = volunteerName;
 
-    if (io) io.emit("donationUpdated", donation);
+    await donation.save();
+    io.emit("donationClaimed", donation);
+
+    if (io) {
+      io.emit("donationUpdated", {
+        _id: donation._id,
+        status: donation.status,
+        volunteerId: donation.volunteerId,
+      });
+    }
 
     res.json(donation);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+export const getDonorDonations = async (req, res) => {
+  try {
+    const donorId = req.user.id;
+    const donations = await Donation.find({ userId: donorId });
+    res.json(donations);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+export const getVolunteerDonations = async (req, res) => {
+  try {
+    const volunteerId = req.user.id;    
+    const donations = await Donation.find({ volunteerId });    
+    res.json(donations);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server Error" });
