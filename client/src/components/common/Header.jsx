@@ -7,6 +7,7 @@ import {
   IconButton,
   Tooltip,
   Avatar,
+  Typography,
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LoginIcon from "@mui/icons-material/Login";
@@ -18,7 +19,7 @@ export default function Header() {
 
   const [user, setUser] = useState(null);
 
-  // נשלוף את המשתמש מה-localStorage
+  // שליפת המשתמש מה-localStorage
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -31,20 +32,26 @@ export default function Header() {
   }, []);
 
   const getButtons = () => {
-    if (location.pathname === "/donation") {
-      return [{ label: "My Donations", path: "/donation" }];
-    } else if (location.pathname === "/claimdonation") {
-      return [{ label: "Active Missions", path: "/claimdonation" }];
-    } else {
+    // אם אין משתמש מחובר - מציגים את שתי האפשרויות
+    if (!user) {
       return [
-        { label: "Donate Food", path: "/donation" },
-        { label: "Volunteer", path: "/claimdonation" },
+        { label: "תרום אוכל", path: "/donation" },
+        { label: "volunteered", path: "/claimdonation" },
       ];
     }
+
+    // אם המשתמש תורם - רק "תרום אוכל"
+    if (user.role === "donor") {
+      return [{ label: "Donate food", path: "/donation" }];
+    }
+
+    // אם המשתמש מתנדב - רק "התנדב"
+    if (user.role === "volunteer") {
+      return [{ label: "התנדב", path: "/claimdonation" }];
+    }
+
+    return [];
   };
-
-  const isHomePage = location.pathname === "/home";
-
   const handleLogout = () => {
     localStorage.removeItem("user");
     navigate("/login");
@@ -60,7 +67,6 @@ export default function Header() {
         {/* לוגו */}
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <Button
-            key={"/home"}
             color="inherit"
             onClick={() => navigate("/home")}
             sx={{
@@ -96,37 +102,43 @@ export default function Header() {
             </Button>
           ))}
 
-          {/* אם המשתמש מחובר – הצגת האות הראשונה */}
-          {user ? (
-            <>
-              <Tooltip title={user.name || "Profile"}>
-                <Avatar
-                  sx={{
-                    bgcolor: "#fff",
-                    color: "primary.main",
-                    fontWeight: "bold",
-                    ml: 2,
-                    cursor: "pointer",
-                  }}
-                  onClick={() => navigate("/profile")}
-                >
-                  {user.name?.charAt(0).toUpperCase() || "?"}
-                </Avatar>
-              </Tooltip>
+        {user ? (
+  <>
+    {/* אווטר עם האות הראשונה */}
+    <Tooltip title={`${user.name || "Profile"} (${user.role === "donor" ? "Donor" : "Volunteer"})`}>
+      <Avatar
+        sx={{
+          bgcolor: "#fff",
+          color: "primary.main",
+          fontWeight: "bold",
+          ml: 1,
+          cursor: "pointer",
+        }}
+        onClick={() => navigate("/profile")}
+      >
+        {user.name?.charAt(0).toUpperCase() || "?"}
+      </Avatar>
+    </Tooltip>
 
-              <Tooltip title="Logout">
-                <IconButton color="inherit" onClick={handleLogout} sx={{ ml: 1 }}>
-                  <LogoutIcon />
-                </IconButton>
-              </Tooltip>
-            </>
-          ) : (
-            <Tooltip title="Login">
-              <IconButton color="inherit" onClick={() => navigate("/login")} sx={{ ml: 2 }}>
-                <LoginIcon />
-              </IconButton>
-            </Tooltip>
-          )}
+    {/* כפתור יציאה */}
+    <Tooltip title="Logout">
+      <IconButton color="inherit" onClick={handleLogout} sx={{ ml: 1 }}>
+        <LogoutIcon />
+      </IconButton>
+    </Tooltip>
+  </>
+) : (
+  <Tooltip title="Login">
+    <IconButton color="inherit" onClick={() => navigate("/login")} sx={{ ml: 2 }}>
+      <LoginIcon />
+    </IconButton>
+  </Tooltip>
+)}
+
+
+
+
+
         </Box>
       </Toolbar>
     </AppBar>

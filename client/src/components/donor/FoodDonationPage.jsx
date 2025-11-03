@@ -92,13 +92,13 @@ export default function FoodDonationPage() {
     const [hours, minutes] = pickupTime.split(":");
     const maxTime = new Date(today.setHours(hours, minutes));
 
-    const donationData = {
-      name: "Anonymous Donor", // or replace with a real name field later
-      address: location,
-      items: validFoodItems,
-      maxTime,
-    };
-    console.log(donationData);
+        const donationData = {
+            name: JSON.parse(localStorage.getItem("user")).name||"Anonymous Doner", // or replace with a real name field later
+            address: location,
+            items: validFoodItems,
+            maxTime
+        };
+        console.log(donationData);
 
     try {
       setIsSubmitting(true);
