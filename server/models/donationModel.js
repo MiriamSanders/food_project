@@ -45,6 +45,12 @@ const donationSchema = new mongoose.Schema(
       enum: ["pending", "claimed", "completed", "expired"],
       default: "pending",
     },
+    donorId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    donorName: { type: String, required: true },
     volunteerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

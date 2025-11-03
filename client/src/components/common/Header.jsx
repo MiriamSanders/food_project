@@ -32,22 +32,19 @@ export default function Header() {
   }, []);
 
   const getButtons = () => {
-    // אם אין משתמש מחובר - מציגים את שתי האפשרויות
     if (!user) {
       return [
-        { label: "תרום אוכל", path: "/donation" },
+        { label: "Donate food", path: "/donation" },
         { label: "volunteered", path: "/claimdonation" },
       ];
     }
 
-    // אם המשתמש תורם - רק "תרום אוכל"
     if (user.role === "donor") {
       return [{ label: "Donate food", path: "/donation" }];
     }
 
-    // אם המשתמש מתנדב - רק "התנדב"
     if (user.role === "volunteer") {
-      return [{ label: "התנדב", path: "/claimdonation" }];
+      return [{ label: "volunteered", path: "/claimdonation" }];
     }
 
     return [];
@@ -84,7 +81,6 @@ export default function Header() {
           </Button>
         </Box>
 
-        {/* ניווט + פרופיל */}
         <Box sx={{ display: "flex", alignItems: "center" }}>
           {getButtons().map(({ label, path }) => (
             <Button
@@ -104,7 +100,6 @@ export default function Header() {
 
         {user ? (
   <>
-    {/* אווטר עם האות הראשונה */}
     <Tooltip title={`${user.name || "Profile"} (${user.role === "donor" ? "Donor" : "Volunteer"})`}>
       <Avatar
         sx={{
@@ -120,7 +115,6 @@ export default function Header() {
       </Avatar>
     </Tooltip>
 
-    {/* כפתור יציאה */}
     <Tooltip title="Logout">
       <IconButton color="inherit" onClick={handleLogout} sx={{ ml: 1 }}>
         <LogoutIcon />

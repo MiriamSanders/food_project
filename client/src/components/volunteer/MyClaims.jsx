@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Box, CircularProgress, Typography } from "@mui/material";
 import DonationList from "./DonationList";
-import Layout from '../layout/Layout'
 import { io } from "socket.io-client";
 
 const socket = io("http://localhost:5000");
@@ -52,12 +51,7 @@ const MyClaims = () => {
   }, []);
 
   return (
-    <Layout>
       <Box>
-        <Typography variant="h4" color="primary" fontWeight={700} mb={2}>
-          My Claimed Donations
-        </Typography>
-
         {loading ? (
           <Box display="flex" justifyContent="center" mt={4}>
             <CircularProgress />
@@ -66,7 +60,6 @@ const MyClaims = () => {
           <DonationList donations={donations} />
         )}
       </Box>
-    </Layout>
   );
 };
 

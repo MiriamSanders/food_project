@@ -3,7 +3,6 @@ import axios from "axios";
 import { Box, CircularProgress, Typography } from "@mui/material";
 import DonationList from "../volunteer/DonationList";
 import { io } from "socket.io-client";
-import Layout from "../layout/Layout";
 
 const socket = io("http://localhost:5000");
 
@@ -14,7 +13,7 @@ const MyDonations = () => {
   useEffect(() => {
     const fetchDonations = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("token");        
         const res = await axios.get(
           "http://localhost:5000/donations/my-donations",
           {
@@ -41,12 +40,7 @@ const MyDonations = () => {
   }, []);
 
   return (
-    <Layout>
       <Box>
-        <Typography variant="h4" color="primary" fontWeight={700} mb={2}>
-          My Donations
-        </Typography>
-
         {loading ? (
           <Box display="flex" justifyContent="center" mt={4}>
             <CircularProgress />
@@ -55,7 +49,6 @@ const MyDonations = () => {
           <DonationList donations={donations} />
         )}
       </Box>
-    </Layout>
   );
 };
 

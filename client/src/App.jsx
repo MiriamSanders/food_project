@@ -6,6 +6,7 @@ import FoodDonationPage from "./components/donor/FoodDonationPage";
 import VolunteerDonationClaim from "./components/volunteer/VolunteerDonationClaim";
 import HomePage from "./components/HomePage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ProfilePage from "./components/common/ProfilePage";
 
 export default function App() {
   const [role, setRole] = React.useState("");
@@ -33,22 +34,6 @@ export default function App() {
           element={
             <ProtectedRoute allowedRoles={["volunteer"]}>
               <VolunteerDonationClaim />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/my-donations"
-          element={
-            <ProtectedRoute allowedRoles={["donor"]}>
-              <MyDonations />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/my-claims"
-          element={
-            <ProtectedRoute allowedRoles={["volunteer"]}>
-              <MyClaims />
             </ProtectedRoute>
           }
         />

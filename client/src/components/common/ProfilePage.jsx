@@ -11,31 +11,36 @@ import {
   Alert,
   Button,
 } from "@mui/material";
-import { Person, Favorite, VolunteerActivism, AccountCircle } from "@mui/icons-material";
+import {
+  Person,
+  Favorite,
+  VolunteerActivism,
+  AccountCircle,
+} from "@mui/icons-material";
 import Layout from "../layout/Layout";
+import MyDonations from "../donor/MyDonations";
+import MyClaims from "../volunteer/MyClaims";
 
 export default function ProfilePage() {
   const [user, setUser] = useState(null);
   const [donationsOffered, setDonationsOffered] = useState([]);
   const [donationsClaimed, setDonationsClaimed] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "info",
+  });
 
   useEffect(() => {
-    // שולף משתמש מה-localStorage
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
 
-    // נתונים לדוגמה — בהמשך יוחלפו בפניות אמיתיות לשרת
     setTimeout(() => {
-      setDonationsOffered([
-       
-      ]);
-      setDonationsClaimed([
-       
-      ]);
+      setDonationsOffered([]);
+      setDonationsClaimed([]);
       setLoading(false);
     }, 1000);
   }, []);
@@ -82,7 +87,6 @@ export default function ProfilePage() {
             mx: "auto",
           }}
         >
-          {/* כותרת עליונה */}
           <Card
             sx={{
               p: 2,
@@ -110,60 +114,81 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
 
-          {/* פרטי משתמש */}
           <Card sx={{ mb: 4, p: 3, borderRadius: 2 }}>
             <CardContent>
               <Typography variant="h5" fontWeight="bold" mb={2}>
-                <Person color="primary" sx={{ mr: 1, verticalAlign: "middle" }} />
+                <Person
+                  color="primary"
+                  sx={{ mr: 1, verticalAlign: "middle" }}
+                />
                 Personal Details
               </Typography>
               <Divider sx={{ mb: 2 }} />
-              <Typography><strong>Name:</strong> {user?.name}</Typography>
-              <Typography><strong>Email:</strong> {user?.email}</Typography>
-              <Typography><strong>Address:</strong> {user?.address}</Typography>
-              <Typography><strong>Role:</strong> {user?.role}</Typography>
-            </CardContent>
-          </Card>
-
-          {/* תרומות שהציע */}
-          <Card sx={{ mb: 4, p: 3, borderRadius: 2 }}>
-            <CardContent>
-              <Typography variant="h5" fontWeight="bold" mb={2}>
-                <Favorite color="error" sx={{ mr: 1, verticalAlign: "middle" }} />
-                Donations I Offered
+              <Typography>
+                <strong>Name:</strong> {user?.name}
               </Typography>
-              <Divider sx={{ mb: 2 }} />
-              {donationsOffered.length === 0 ? (
-                <Typography color="text.secondary">No donations yet.</Typography>
-              ) : (
-                donationsOffered.map((d) => (
-                  <Typography key={d.id}>
-                    • {d.title} — <em>{d.status}</em>
-                  </Typography>
-                ))
-              )}
-            </CardContent>
-          </Card>
-
-          {/* תרומות שנאספו */}
-          <Card sx={{ mb: 4, p: 3, borderRadius: 2 }}>
-            <CardContent>
-              <Typography variant="h5" fontWeight="bold" mb={2}>
-                <VolunteerActivism color="success" sx={{ mr: 1, verticalAlign: "middle" }} />
-                Donations I Claimed
+              <Typography>
+                <strong>Email:</strong> {user?.email}
               </Typography>
-              <Divider sx={{ mb: 2 }} />
-              {donationsClaimed.length === 0 ? (
-                <Typography color="text.secondary">No claimed donations yet.</Typography>
-              ) : (
-                donationsClaimed.map((d) => (
-                  <Typography key={d.id}>
-                    • {d.title} — <em>{d.status}</em>
-                  </Typography>
-                ))
-              )}
+              <Typography>
+                <strong>Address:</strong> {user?.address}
+              </Typography>
+              <Typography>
+                <strong>Role:</strong> {user?.role}
+              </Typography>
             </CardContent>
           </Card>
+          {user?.role == "donor" ? (
+            <Card sx={{ mb: 4, p: 3, borderRadius: 2 }}>
+              <CardContent>
+                <Typography variant="h5" fontWeight="bold" mb={2}>
+                  <Favorite
+                    color="error"
+                    sx={{ mr: 1, verticalAlign: "middle" }}
+                  />
+                  Donations I Offered
+                </Typography>
+                <Divider sx={{ mb: 2 }} />
+                {/* {donationsOffered.length === 0 ? (
+                  <Typography color="text.secondary">
+                    No donations yet.
+                  </Typography>
+                ) : (
+                  donationsOffered.map((d) => (
+                    <Typography key={d.id}>
+                      • {d.title} — <em>{d.status}</em>
+                    </Typography>
+                  ))
+                )} */}
+                <MyDonations/>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card sx={{ mb: 4, p: 3, borderRadius: 2 }}>
+              <CardContent>
+                <Typography variant="h5" fontWeight="bold" mb={2}>
+                  <VolunteerActivism
+                    color="success"
+                    sx={{ mr: 1, verticalAlign: "middle" }}
+                  />
+                  Donations I Claimed
+                </Typography>
+                <Divider sx={{ mb: 2 }} />
+                {/* {donationsClaimed.length === 0 ? (
+                  <Typography color="text.secondary">
+                    No claimed donations yet.
+                  </Typography>
+                ) : (
+                  donationsClaimed.map((d) => (
+                    <Typography key={d.id}>
+                      • {d.title} — <em>{d.status}</em>
+                    </Typography>
+                  ))
+                )} */}
+                <MyClaims/>
+              </CardContent>
+            </Card>
+          )}
 
           <Button
             variant="contained"
@@ -171,7 +196,11 @@ export default function ProfilePage() {
             fullWidth
             sx={{ py: 2, fontWeight: "bold", fontSize: "1.1rem" }}
             onClick={() =>
-              setSnackbar({ open: true, message: "Edit profile coming soon!", severity: "info" })
+              setSnackbar({
+                open: true,
+                message: "Edit profile coming soon!",
+                severity: "info",
+              })
             }
           >
             Edit Profile ✏️

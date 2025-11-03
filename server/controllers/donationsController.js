@@ -140,20 +140,41 @@ export const claimDonation = async (req, res) => {
   }
 };
 
-export const getDonorDonations = async (req, res) => {
+// export const getDonorDonations = async (req, res) => {
+//   try {
+//     const donorId = req.user.id;
+//     const donations = await Donation.find({ userId: donorId });
+    
+//     res.json(donations);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: "Server Error" });
+//   }
+// };
+// export const getVolunteerDonations = async (req, res) => {
+//   try {
+//     const volunteerId = req.user.id;    
+//     const donations = await Donation.find({ volunteerId });    
+//     res.json(donations);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: "Server Error" });
+//   }
+// };
+export const getUserDonations = async (req, res) => {
   try {
-    const donorId = req.user.id;
-    const donations = await Donation.find({ userId: donorId });
-    res.json(donations);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server Error" });
-  }
-};
-export const getVolunteerDonations = async (req, res) => {
-  try {
-    const volunteerId = req.user.id;    
-    const donations = await Donation.find({ volunteerId });    
+    const userId = req.user.id;
+    const role = req.user.role;
+
+    let donations;
+    if (role === "donor") {
+      donations = await Donation.find({ donorId: userId });
+    } else if (role === "volunteer") {
+      donations = await Donation.find({ volunteerId: userId });
+    } else {
+      return res.status(403).json({ message: "Role not allowed" });
+    }
+
     res.json(donations);
   } catch (err) {
     console.error(err);
