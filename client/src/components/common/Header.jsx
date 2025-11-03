@@ -7,6 +7,7 @@ import {
   IconButton,
   Tooltip,
   Avatar,
+  Typography,
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LoginIcon from "@mui/icons-material/Login";
@@ -18,7 +19,7 @@ export default function Header() {
 
   const [user, setUser] = useState(null);
 
-  // נשלוף את המשתמש מה-localStorage
+  // שליפת המשתמש מה-localStorage
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -43,8 +44,6 @@ export default function Header() {
     }
   };
 
-  const isHomePage = location.pathname === "/home";
-
   const handleLogout = () => {
     localStorage.removeItem("user");
     navigate("/login");
@@ -60,7 +59,6 @@ export default function Header() {
         {/* לוגו */}
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <Button
-            key={"/home"}
             color="inherit"
             onClick={() => navigate("/home")}
             sx={{
@@ -96,16 +94,33 @@ export default function Header() {
             </Button>
           ))}
 
-          {/* אם המשתמש מחובר – הצגת האות הראשונה */}
           {user ? (
             <>
+              {/* תצוגת סוג המשתמש */}
+              <Typography
+                variant="body1"
+                sx={{
+                  ml: 2,
+                  mr: 1,
+                  fontWeight: 500,
+                  bgcolor: "rgba(255,255,255,0.15)",
+                  px: 1.5,
+                  py: 0.5,
+                  borderRadius: 2,
+                  textTransform: "capitalize",
+                }}
+              >
+                {user.role === "donor" ? "Donor" : "Volunteer"}
+              </Typography>
+
+              {/* אווטר עם האות הראשונה */}
               <Tooltip title={user.name || "Profile"}>
                 <Avatar
                   sx={{
                     bgcolor: "#fff",
                     color: "primary.main",
                     fontWeight: "bold",
-                    ml: 2,
+                    ml: 1,
                     cursor: "pointer",
                   }}
                   onClick={() => navigate("/profile")}
@@ -114,6 +129,7 @@ export default function Header() {
                 </Avatar>
               </Tooltip>
 
+              {/* כפתור יציאה */}
               <Tooltip title="Logout">
                 <IconButton color="inherit" onClick={handleLogout} sx={{ ml: 1 }}>
                   <LogoutIcon />
