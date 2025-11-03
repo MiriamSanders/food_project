@@ -14,6 +14,7 @@ export const getDonations = async (req, res) => {
       return res.status(400).json({ message: "Missing coordinates" });
 
     const donations = await Donation.find({
+
       status: { $nin: ["expired", "claimed"] },
     }).sort({ createdAt: -1 });
 
@@ -97,7 +98,6 @@ export const createDonation = async (req, res) => {
     res.status(201).json(donation);
   } catch (err) {
     console.log("Error creating donation:", err);
-    // Return Mongoose validation details when available
     if (err.name === "ValidationError") {
       return res.status(400).json({ message: err.message, errors: err.errors });
     }
@@ -108,18 +108,74 @@ export const createDonation = async (req, res) => {
 export const claimDonation = async (req, res) => {
   const { id } = req.params;
   try {
-    console.log(id);
-
     const donation = await Donation.findById(id);
-    if (!donation) return res.status(404).json({ message: "Donation not found" });
+    if (!donation)
+      return res.status(404).json({ message: "Donation not found" });
+    const { id: volunteerId, name: volunteerName } = req.user;
+
+    if (donation.status !== "pending")
+      return res
+        .status(400)
+        .json({ message: "Donation already claimed or completed" });
 
     donation.status = "claimed";
-    console.log(donation);
-    await donation.save();
+    donation.volunteerId = volunteerId;
+    donation.volunteerName = volunteerName;
 
-    if (io) io.emit("donationUpdated", donation);
+    await donation.save();
+    io.emit("donationClaimed", donation);
+
+    if (io) {
+      io.emit("donationUpdated", {
+        _id: donation._id,
+        status: donation.status,
+        volunteerId: donation.volunteerId,
+      });
+    }
 
     res.json(donation);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+// export const getDonorDonations = async (req, res) => {
+//   try {
+//     const donorId = req.user.id;
+//     const donations = await Donation.find({ userId: donorId });
+    
+//     res.json(donations);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: "Server Error" });
+//   }
+// };
+// export const getVolunteerDonations = async (req, res) => {
+//   try {
+//     const volunteerId = req.user.id;    
+//     const donations = await Donation.find({ volunteerId });    
+//     res.json(donations);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: "Server Error" });
+//   }
+// };
+export const getUserDonations = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const role = req.user.role;
+
+    let donations;
+    if (role === "donor") {
+      donations = await Donation.find({ donorId: userId });
+    } else if (role === "volunteer") {
+      donations = await Donation.find({ volunteerId: userId });
+    } else {
+      return res.status(403).json({ message: "Role not allowed" });
+    }
+
+    res.json(donations);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server Error" });

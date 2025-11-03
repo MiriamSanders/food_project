@@ -3,7 +3,10 @@ import { Box, CircularProgress, Typography } from "@mui/material";
 import DonationList from "./DonationList";
 import Layout from "../layout/Layout";
 import axios from "axios";
-import SuccessPage from "./SuccessPage.jsx"; // ✅ import your success popup
+import io from "socket.io-client";
+import SuccessPage from "./SuccessPage.jsx";
+
+const socket = io("http://localhost:5000", { transports: ["websocket"] });
 
 const VolunteerDonationClaim = () => {
   const [donations, setDonations] = useState([]);
@@ -26,11 +29,16 @@ const VolunteerDonationClaim = () => {
         const coords = await getCoordinates();
         const { latitude, longitude } = coords;
 
+        const token = localStorage.getItem("token");
         const res = await axios.get(
-          `http://localhost:5000/donations?lat=${latitude}&lng=${longitude}`
+          `http://localhost:5000/donations?lat=${latitude}&lng=${longitude}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
         );
 
-        setDonations(res.data);
+        const available = res.data.filter((d) => d.status === "pending");
+        setDonations(available);
       } catch (err) {
         console.error("Error fetching donations:", err);
       } finally {
@@ -41,24 +49,44 @@ const VolunteerDonationClaim = () => {
     fetchDonations();
   }, []);
 
+  useEffect(() => {
+    socket.on("donationClaimed", (updatedDonation) => {
+      setDonations((prev) =>
+        prev.map((d) =>
+          d._id === updatedDonation._id ? { ...d, ...updatedDonation } : d
+        )
+      );
+    });
+
+    socket.on("donationCreated", (newDonation) => {
+      setDonations((prev) => [newDonation, ...prev]);
+    });
+
+    return () => {
+      socket.off("donationClaimed");
+      socket.off("donationCreated");
+    };
+  }, []);
+
   const handleClaim = async (donationId) => {
     try {
+      const token = localStorage.getItem("token");
+
       const res = await axios.put(
-        `http://localhost:5000/donations/${donationId}/claim`
+        `http://localhost:5000/donations/${donationId}/claim`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Update donation list
       setDonations((prev) =>
         prev.map((d) =>
           d._id === donationId ? { ...d, status: "claimed" } : d
         )
       );
 
-      // ✅ Open success popup with donation address
       const claimedDonation = donations.find((d) => d._id === donationId);
-      if (claimedDonation?.address) {
-        setClaimedAddress(claimedDonation.address);
-      }
+      if (claimedDonation?.address) setClaimedAddress(claimedDonation.address);
+
       setSuccessOpen(true);
     } catch (err) {
       console.error("Error claiming donation:", err);
@@ -87,7 +115,6 @@ const VolunteerDonationClaim = () => {
         <DonationList donations={donations} onClaim={handleClaim} />
       )}
 
-      {/* ✅ Success popup */}
       <SuccessPage
         open={successOpen}
         address={claimedAddress}
