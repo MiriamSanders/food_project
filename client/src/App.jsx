@@ -17,7 +17,6 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage userRole={role}/>} />
 
-        {/* Protected routes */}
         <Route 
           path="/donation" 
           element={
