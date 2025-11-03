@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -6,6 +6,7 @@ import {
   Box,
   IconButton,
   Tooltip,
+  Avatar,
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LoginIcon from "@mui/icons-material/Login";
@@ -14,6 +15,20 @@ import { useLocation, useNavigate } from "react-router-dom";
 export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
+
+  const [user, setUser] = useState(null);
+
+  // נשלוף את המשתמש מה-localStorage
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch {
+        console.error("Invalid user data in localStorage");
+      }
+    }
+  }, []);
 
   const getButtons = () => {
     if (location.pathname === "/donation") {
@@ -42,6 +57,7 @@ export default function Header() {
       sx={{ opacity: 0.95, py: 2, boxShadow: 5 }}
     >
       <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+        {/* לוגו */}
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <Button
             key={"/home"}
@@ -62,7 +78,8 @@ export default function Header() {
           </Button>
         </Box>
 
-        <Box>
+        {/* ניווט + פרופיל */}
+        <Box sx={{ display: "flex", alignItems: "center" }}>
           {getButtons().map(({ label, path }) => (
             <Button
               key={label}
@@ -79,16 +96,34 @@ export default function Header() {
             </Button>
           ))}
 
-          {isHomePage ? (
-             <Tooltip title="Login">
+          {/* אם המשתמש מחובר – הצגת האות הראשונה */}
+          {user ? (
+            <>
+              <Tooltip title={user.name || "Profile"}>
+                <Avatar
+                  sx={{
+                    bgcolor: "#fff",
+                    color: "primary.main",
+                    fontWeight: "bold",
+                    ml: 2,
+                    cursor: "pointer",
+                  }}
+                  onClick={() => navigate("/profile")}
+                >
+                  {user.name?.charAt(0).toUpperCase() || "?"}
+                </Avatar>
+              </Tooltip>
+
+              <Tooltip title="Logout">
+                <IconButton color="inherit" onClick={handleLogout} sx={{ ml: 1 }}>
+                  <LogoutIcon />
+                </IconButton>
+              </Tooltip>
+            </>
+          ) : (
+            <Tooltip title="Login">
               <IconButton color="inherit" onClick={() => navigate("/login")} sx={{ ml: 2 }}>
                 <LoginIcon />
-              </IconButton>
-            </Tooltip>
-          ) : (
-            <Tooltip title="Logout">
-              <IconButton color="inherit" onClick={handleLogout} sx={{ ml: 2 }}>
-                <LogoutIcon />
               </IconButton>
             </Tooltip>
           )}
