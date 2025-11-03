@@ -1,7 +1,6 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
-  AppBar,
-  Toolbar,
   Typography,
   Button,
   Container,
@@ -13,7 +12,14 @@ import {
 import { Restaurant, VolunteerActivism, Group } from "@mui/icons-material";
 import Layout from "./layout/Layout";
 
-export default function HomePage() {
+export default function HomePage({ setRole }) {
+  const navigate = useNavigate();
+
+  // נבדוק אם המשתמש מחובר ומה התפקיד שלו
+  const user = JSON.parse(localStorage.getItem("user"));
+  const isLoggedIn = !!user;
+  const role = user?.role;
+
   return (
     <Layout>
       <Box
@@ -32,36 +38,85 @@ export default function HomePage() {
         <Typography variant="h3" gutterBottom color="primary">
           Bridging Surplus & Need
         </Typography>
+
         <Typography variant="h6" sx={{ mb: 4 }}>
           Turning leftover meals into meaningful help. Connect catering
           businesses, volunteers, and charities in real-time.
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          size="large"
-          sx={{ mr: 2, px: 4, py: 1.5 }}
-        >
-          Offer Food
-        </Button>
-        <Button
-          variant="outlined"
-          color="primary"
-          size="large"
-          sx={{ px: 4, py: 1.5 }}
-        >
-          Collect Food
-        </Button>
+
+        {/* --- אם לא מחובר --- */}
+        {!isLoggedIn && (
+          <>
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              sx={{ mr: 2, px: 4, py: 1.5 }}
+              onClick={() => {
+                setRole("donor");
+                navigate("/signup");
+              }}
+            >
+              Sign Up as Donor
+            </Button>
+
+            <Button
+              variant="contained"
+              color="secondary"
+              size="large"
+              sx={{ px: 4, py: 1.5 }}
+              onClick={() => {
+                setRole("volunteer");
+                navigate("/signup");
+              }}
+            >
+              Sign Up as Volunteer
+            </Button>
+
+            <Box sx={{ mt: 4 }}>
+              <Button
+                variant="outlined"
+                color="primary"
+                size="large"
+                sx={{ px: 4, py: 1.5 }}
+                onClick={() => navigate("/login")}
+              >
+                Login
+              </Button>
+            </Box>
+          </>
+        )}
+
+        {/* --- אם מחובר כתורם --- */}
+        {isLoggedIn && role === "donor" && (
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            sx={{ px: 4, py: 1.5 }}
+            onClick={() => navigate("/donation")}
+          >
+            Offer Food
+          </Button>
+        )}
+
+        {/* --- אם מחובר כמתנדב --- */}
+        {isLoggedIn && role === "volunteer" && (
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            sx={{ px: 4, py: 1.5 }}
+            onClick={() => navigate("/claimdonation")}
+          >
+            Collect Food
+          </Button>
+        )}
       </Box>
 
-      {/* Feature Section */}
+      {/* --- חלק תחתון של פיצ'רים --- */}
       <Container sx={{ mt: 12, mb: 12 }}>
-        <Grid
-          container
-          spacing={4}
-          justifyContent="center"
-          alignItems="flex-start"
-        >
+        <Grid container spacing={4} justifyContent="center" alignItems="flex-start">
           {[
             {
               icon: <Restaurant fontSize="large" color="primary" />,
