@@ -67,7 +67,7 @@ export default function FoodDonationPage() {
         const maxTime = new Date(today.setHours(hours, minutes));
 
         const donationData = {
-            name: JSON.parse(localStorage.getItem("user")).name, // or replace with a real name field later
+            name: JSON.parse(localStorage.getItem("user")).name||"Anonymous Doner", // or replace with a real name field later
             address: location,
             items: validFoodItems,
             maxTime
