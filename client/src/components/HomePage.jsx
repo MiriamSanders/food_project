@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
   AppBar,
   Toolbar,
@@ -13,7 +14,9 @@ import {
 import { Restaurant, VolunteerActivism, Group } from "@mui/icons-material";
 import Layout from "./layout/Layout";
 
-export default function HomePage() {
+export default function HomePage({ setRole }) {
+  const navigate = useNavigate();
+
   return (
     <Layout>
       <Box
@@ -41,6 +44,10 @@ export default function HomePage() {
           color="primary"
           size="large"
           sx={{ mr: 2, px: 4, py: 1.5 }}
+          onClick={() => {
+            setRole("donor");
+            navigate("/signup");
+          }}
         >
           Offer Food
         </Button>
@@ -49,6 +56,10 @@ export default function HomePage() {
           color="primary"
           size="large"
           sx={{ px: 4, py: 1.5 }}
+          onClick={() => {
+            setRole("volunteer");
+            navigate("/signup");
+          }}
         >
           Collect Food
         </Button>
@@ -56,12 +67,7 @@ export default function HomePage() {
 
       {/* Feature Section */}
       <Container sx={{ mt: 12, mb: 12 }}>
-        <Grid
-          container
-          spacing={4}
-          justifyContent="center"
-          alignItems="flex-start"
-        >
+        <Grid container spacing={4} justifyContent="center" alignItems="flex-start">
           {[
             {
               icon: <Restaurant fontSize="large" color="primary" />,
