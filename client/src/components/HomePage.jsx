@@ -1,8 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  AppBar,
-  Toolbar,
   Typography,
   Button,
   Container,
@@ -17,8 +15,10 @@ import Layout from "./layout/Layout";
 export default function HomePage({ setRole }) {
   const navigate = useNavigate();
 
+  // נבדוק אם המשתמש מחובר ומה התפקיד שלו
   const user = JSON.parse(localStorage.getItem("user"));
-  const isLoggedIn = !!user; // אם קיים משתמש בלוקל סטורג'
+  const isLoggedIn = !!user;
+  const role = user?.role;
 
   return (
     <Layout>
@@ -38,34 +38,14 @@ export default function HomePage({ setRole }) {
         <Typography variant="h3" gutterBottom color="primary">
           Bridging Surplus & Need
         </Typography>
+
         <Typography variant="h6" sx={{ mb: 4 }}>
           Turning leftover meals into meaningful help. Connect catering
           businesses, volunteers, and charities in real-time.
         </Typography>
 
-
-       {!isLoggedIn ? (
-          <>
-            <Button
-              variant="contained"
-              color="primary"
-              size="large"
-              sx={{ mr: 2, px: 4, py: 1.5 }}
-              onClick={() => navigate("/signup")}
-            >
-              Sign Up
-            </Button>
-            <Button
-              variant="outlined"
-              color="primary"
-              size="large"
-              sx={{ px: 4, py: 1.5 }}
-              onClick={() => navigate("/login")}
-            >
-              Login
-            </Button>
-          </>
-        ) : (
+        {/* --- אם לא מחובר --- */}
+        {!isLoggedIn && (
           <>
             <Button
               variant="contained"
@@ -74,30 +54,67 @@ export default function HomePage({ setRole }) {
               sx={{ mr: 2, px: 4, py: 1.5 }}
               onClick={() => {
                 setRole("donor");
-                navigate("/donor");
+                navigate("/signup");
               }}
             >
-              Offer Food
+              Sign Up as Donor
             </Button>
+
             <Button
-              variant="outlined"
-              color="primary"
+              variant="contained"
+              color="secondary"
               size="large"
               sx={{ px: 4, py: 1.5 }}
               onClick={() => {
                 setRole("volunteer");
-                navigate("/volunteer");
+                navigate("/signup");
               }}
             >
-              Collect Food
+              Sign Up as Volunteer
             </Button>
+
+            <Box sx={{ mt: 4 }}>
+              <Button
+                variant="outlined"
+                color="primary"
+                size="large"
+                sx={{ px: 4, py: 1.5 }}
+                onClick={() => navigate("/login")}
+              >
+                Login
+              </Button>
+            </Box>
           </>
         )}
 
+        {/* --- אם מחובר כתורם --- */}
+        {isLoggedIn && role === "donor" && (
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            sx={{ px: 4, py: 1.5 }}
+            onClick={() => navigate("/donation")}
+          >
+            Offer Food
+          </Button>
+        )}
 
+        {/* --- אם מחובר כמתנדב --- */}
+        {isLoggedIn && role === "volunteer" && (
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            sx={{ px: 4, py: 1.5 }}
+            onClick={() => navigate("/claimdonation")}
+          >
+            Collect Food
+          </Button>
+        )}
       </Box>
 
-      {/* Feature Section */}
+      {/* --- חלק תחתון של פיצ'רים --- */}
       <Container sx={{ mt: 12, mb: 12 }}>
         <Grid container spacing={4} justifyContent="center" alignItems="flex-start">
           {[
