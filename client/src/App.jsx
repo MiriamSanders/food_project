@@ -6,6 +6,7 @@ import FoodDonationPage from "./components/donor/FoodDonationPage";
 import VolunteerDonationClaim from "./components/volunteer/VolunteerDonationClaim";
 import HomePage from "./components/HomePage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ProfilePage from "./components/common/ProfilePage";
 
 export default function App() {
   const [role, setRole] = React.useState("");
@@ -16,23 +17,25 @@ export default function App() {
         <Route path="/home" element={<HomePage setRole={setRole} />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage userRole={role}/>} />
+        <Route path="/profile" element={<ProfilePage />} />
 
-        <Route 
-          path="/donation" 
+
+        <Route
+          path="/donation"
           element={
             <ProtectedRoute allowedRoles={["donor"]}>
               <FoodDonationPage />
             </ProtectedRoute>
-          } 
+          }
         />
 
-        <Route 
-          path="/claimdonation" 
+        <Route
+          path="/claimdonation"
           element={
             <ProtectedRoute allowedRoles={["volunteer"]}>
               <VolunteerDonationClaim />
             </ProtectedRoute>
-          } 
+          }
         />
       </Routes>
     </Router>
