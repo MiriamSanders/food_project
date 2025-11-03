@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, CircularProgress, Typography } from "@mui/material";
+import { Box,Button, CircularProgress, Typography } from "@mui/material";
 import DonationList from "./DonationList";
 import Layout from "../layout/Layout";
 import axios from "axios";
@@ -65,8 +65,33 @@ const VolunteerDonationClaim = () => {
     }
   };
 
+    // Lazy import push helpers to avoid SSR issues
+  const handleSubscribe = async () => {
+    try {
+      // dynamic import so this runs only in browser
+      const push = await import('../../notifications/push.js');
+      await push.subscribeUser();
+      // eslint-disable-next-line no-alert
+      alert('Subscribed to notifications');
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Push subscribe failed', err);
+      // eslint-disable-next-line no-alert
+      alert('Failed to subscribe to notifications: ' + (err.message || err));
+    }
+  };
+
   return (
     <Layout>
+      <Button
+        variant="outlined"
+        color="secondary"
+        size="large"
+        onClick={handleSubscribe}
+        sx={{ ml: 2 }}
+      >
+        Enable Notifications
+      </Button>
       <Box sx={{ textAlign: "center", mb: 4 }}>
         <Typography variant="h4" color="primary" fontWeight={700}>
           Available Donations

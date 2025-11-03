@@ -7,9 +7,8 @@ import connectDB from "./config/db.js";
 import routesInit from "./routes/config_routes.js";
 import * as donationsController from "./controllers/donationsController.js";
 
-import { startCronJobs } from "./cronJob.js";
+import { startCronJobs } from "./cronJobs.js";
 const PORT = process.env.PORT || 5000;
-dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
@@ -22,7 +21,6 @@ io.on("connection", (socket) => {
   console.log("New client connected:", socket.id);
   socket.on("disconnect", () => console.log("Client disconnected:", socket.id));
 });
-
 
 // Middleware
 app.use(cors());
@@ -45,8 +43,6 @@ app.use((req, res, next) => {
 const start = async () => {
   try {
     await connectDB();
-    // Start cron jobs
-     startCronJobs();
     // Register routes
     routesInit(app);
     // Start server
