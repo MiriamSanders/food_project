@@ -77,8 +77,11 @@ const VolunteerDonationClaim = () => {
       </Box>
 
       {loading ? (
-        <Box display="flex" justifyContent="center" mt={4}>
+        <Box display="flex" flexDirection="column" alignItems="center" mt={4}>
           <CircularProgress color="primary" />
+          <Typography variant="body1" mt={2}>
+            Loading nearby donations...
+          </Typography>
         </Box>
       ) : (
         <DonationList donations={donations} onClaim={handleClaim} />

@@ -10,38 +10,46 @@ export const setSocket = (socketIo) => {
 export const getDonations = async (req, res) => {
   try {
     const { lat, lng } = req.query;
-    if (!lat || !lng) return res.status(400).json({ message: "Missing coordinates" });
+    if (!lat || !lng)
+      return res.status(400).json({ message: "Missing coordinates" });
 
     const donations = await Donation.find({
-      status: { $nin: ["expired", "claimed"] } // exclude both expired and claimed
+      status: { $nin: ["expired", "claimed"] },
     }).sort({ createdAt: -1 });
 
-    console.log(donations);
+    const filtered = [];
 
-    // const filtered = [];
-    // for (let donation of donations) {
-    //   // Geocode the donation address (example using Nominatim)
-    //   const geoRes = await fetch(
-    //     `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(
-    //       donation.address
-    //     )}&format=json&limit=1`
-    //   );
-    //   const geoData = await geoRes.json();
-    //   if (!geoData[0]) continue;
+    for (let donation of donations) {
+      try {
+        const geoRes = await fetch(
+          `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(
+            donation.address
+          )}&format=json&limit=1&apiKey=${process.env.GEOAPIFY_KEY}`
+        );
 
-    //   const donationLat = parseFloat(geoData[0].lat);
-    //   const donationLng = parseFloat(geoData[0].lon);
+        const geoData = await geoRes.json();
+        console.log(geoData);
 
-    //   const distance = getDistance(
-    //     { latitude: parseFloat(lat), longitude: parseFloat(lng) },
-    //     { latitude: donationLat, longitude: donationLng }
-    //   );
-    //   console.log(distance);
-    //   if (distance <= 15000) filtered.push(donation); // 15 km
-    // }
-    // console.log(filtered);
+        if (!geoData.results || !geoData.results[0]) continue;
 
-    res.json(donations);
+        const donationLat = parseFloat(geoData.results[0].lat);
+        const donationLng = parseFloat(geoData.results[0].lon);
+
+        const distance = getDistance(
+          { latitude: parseFloat(lat), longitude: parseFloat(lng) },
+          { latitude: donationLat, longitude: donationLng }
+        );
+
+        console.log("distance:", distance);
+
+        if (distance < 20000) filtered.push(donation);
+      } catch (err) {
+        console.warn("Skipping donation due to error:", donation.address, err.message);
+      }
+    }
+    console.log(filtered);
+
+    res.json(filtered);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server Error" });
