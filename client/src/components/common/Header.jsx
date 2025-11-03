@@ -32,18 +32,26 @@ export default function Header() {
   }, []);
 
   const getButtons = () => {
-    if (location.pathname === "/donation") {
-      return [{ label: "My Donations", path: "/donation" }];
-    } else if (location.pathname === "/claimdonation") {
-      return [{ label: "Active Missions", path: "/claimdonation" }];
-    } else {
+    // אם אין משתמש מחובר - מציגים את שתי האפשרויות
+    if (!user) {
       return [
-        { label: "Donate Food", path: "/donation" },
-        { label: "Volunteer", path: "/claimdonation" },
+        { label: "תרום אוכל", path: "/donation" },
+        { label: "volunteered", path: "/claimdonation" },
       ];
     }
-  };
 
+    // אם המשתמש תורם - רק "תרום אוכל"
+    if (user.role === "donor") {
+      return [{ label: "Donate food", path: "/donation" }];
+    }
+
+    // אם המשתמש מתנדב - רק "התנדב"
+    if (user.role === "volunteer") {
+      return [{ label: "התנדב", path: "/claimdonation" }];
+    }
+
+    return [];
+  };
   const handleLogout = () => {
     localStorage.removeItem("user");
     navigate("/login");
@@ -94,55 +102,43 @@ export default function Header() {
             </Button>
           ))}
 
-          {user ? (
-            <>
-              {/* תצוגת סוג המשתמש */}
-              <Typography
-                variant="body1"
-                sx={{
-                  ml: 2,
-                  mr: 1,
-                  fontWeight: 500,
-                  bgcolor: "rgba(255,255,255,0.15)",
-                  px: 1.5,
-                  py: 0.5,
-                  borderRadius: 2,
-                  textTransform: "capitalize",
-                }}
-              >
-                {user.role === "donor" ? "Donor" : "Volunteer"}
-              </Typography>
+        {user ? (
+  <>
+    {/* אווטר עם האות הראשונה */}
+    <Tooltip title={`${user.name || "Profile"} (${user.role === "donor" ? "Donor" : "Volunteer"})`}>
+      <Avatar
+        sx={{
+          bgcolor: "#fff",
+          color: "primary.main",
+          fontWeight: "bold",
+          ml: 1,
+          cursor: "pointer",
+        }}
+        onClick={() => navigate("/profile")}
+      >
+        {user.name?.charAt(0).toUpperCase() || "?"}
+      </Avatar>
+    </Tooltip>
 
-              {/* אווטר עם האות הראשונה */}
-              <Tooltip title={user.name || "Profile"}>
-                <Avatar
-                  sx={{
-                    bgcolor: "#fff",
-                    color: "primary.main",
-                    fontWeight: "bold",
-                    ml: 1,
-                    cursor: "pointer",
-                  }}
-                  onClick={() => navigate("/profile")}
-                >
-                  {user.name?.charAt(0).toUpperCase() || "?"}
-                </Avatar>
-              </Tooltip>
+    {/* כפתור יציאה */}
+    <Tooltip title="Logout">
+      <IconButton color="inherit" onClick={handleLogout} sx={{ ml: 1 }}>
+        <LogoutIcon />
+      </IconButton>
+    </Tooltip>
+  </>
+) : (
+  <Tooltip title="Login">
+    <IconButton color="inherit" onClick={() => navigate("/login")} sx={{ ml: 2 }}>
+      <LoginIcon />
+    </IconButton>
+  </Tooltip>
+)}
 
-              {/* כפתור יציאה */}
-              <Tooltip title="Logout">
-                <IconButton color="inherit" onClick={handleLogout} sx={{ ml: 1 }}>
-                  <LogoutIcon />
-                </IconButton>
-              </Tooltip>
-            </>
-          ) : (
-            <Tooltip title="Login">
-              <IconButton color="inherit" onClick={() => navigate("/login")} sx={{ ml: 2 }}>
-                <LoginIcon />
-              </IconButton>
-            </Tooltip>
-          )}
+
+
+
+
         </Box>
       </Toolbar>
     </AppBar>
