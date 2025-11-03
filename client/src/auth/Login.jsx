@@ -42,7 +42,7 @@ const handleLogin = async (e) => {
       } else if (role === "volunteer") {
         navigate("/claimdonation");
       } else {
-        navigate("/dashboard"); // fallback
+        navigate("/home"); // fallback
       }
     }, 800);
   } else {
