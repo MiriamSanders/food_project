@@ -1,6 +1,6 @@
 // Helper to register service worker and subscribe for push notifications
 
-const API_BASE = 
+const API_BASE =
   (typeof import.meta !== "undefined" &&
     import.meta.env &&
     import.meta.env.VITE_API_BASE) ||
@@ -51,13 +51,40 @@ export async function subscribeUser() {
     userVisibleOnly: true,
     applicationServerKey: urlBase64ToUint8Array(publicKey),
   });
+  // Send subscription to server. Use toJSON() to ensure a plain object is sent.
+  const endpoint = API_BASE.replace(/\/$/, "");
+  let bodyPayload;
+  try {
+    bodyPayload = typeof sub.toJSON === "function" ? sub.toJSON() : sub;
+  } catch (e) {
+    bodyPayload = sub;
+  }
 
-  // Send subscription to server
-  const res = await fetch(`${API_BASE}/push/subscribe`, {
+  const res = await fetch(`${endpoint}/push/subscribe`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(sub),
+    body: JSON.stringify(bodyPayload),
+  }).catch((err) => {
+    // Network or CORS error
+    throw new Error(`Network error sending subscription: ${err.message}`);
   });
-  if (!res.ok) throw new Error("Failed to save subscription on server");
+
+  if (!res.ok) {
+    // Try to get useful response text for debugging (may be HTML or JSON)
+    const text = await res.text().catch(() => "");
+    throw new Error(
+      `Failed to save subscription on server: ${res.status} ${res.statusText} - ${text}`
+    );
+  }
+
+  // Optionally parse JSON response (if any) and return subscription
+  try {
+    const json = await res.json().catch(() => null);
+    // return the PushSubscription object (not server response) but include server reply in logs
+    console.log("Subscription saved on server:", json);
+  } catch (e) {
+    // ignore parse errors
+  }
+
   return sub;
 }

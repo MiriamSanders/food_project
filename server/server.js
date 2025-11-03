@@ -45,8 +45,18 @@ const start = async () => {
     await connectDB();
     // Register routes
     routesInit(app);
-    // Start server
+    // Start server with an error handler for EADDRINUSE
     server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    server.on("error", (err) => {
+      if (err && err.code === "EADDRINUSE") {
+        console.error(
+          `Port ${PORT} is already in use. Stop the process using that port or set PORT to a different value.`
+        );
+        process.exit(1);
+      }
+      console.error("Server error:", err);
+      process.exit(1);
+    });
   } catch (err) {
     console.error("Failed to start server due to DB connection error", err);
     process.exit(1);

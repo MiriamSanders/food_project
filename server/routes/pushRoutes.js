@@ -1,19 +1,15 @@
 import express from "express";
-import {
-  subscribe,
-  sendToAll,
-  getVapidKey,
-} from "../controller/pushController.js";
+import { saveSubscription } from "../utils/pushNotifier.js";
 
 const router = express.Router();
 
-// Save subscription from client
-router.post("/subscribe", subscribe);
+router.get("/vapidPublicKey", (req, res) => {
+  res.json({ publicKey: process.env.VAPID_PUBLIC_KEY });
+});
 
-// Return public VAPID key to client
-router.get("/vapidPublicKey", getVapidKey);
-
-// Trigger sending a notification to all saved subscriptions (for testing/admin)
-router.post("/send", sendToAll);
+router.post("/subscribe", (req, res) => {
+  saveSubscription(req.body);
+  res.status(201).json({ message: "Subscription saved" });
+});
 
 export default router;
