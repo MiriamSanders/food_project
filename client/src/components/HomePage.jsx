@@ -17,6 +17,9 @@ import Layout from "./layout/Layout";
 export default function HomePage({ setRole }) {
   const navigate = useNavigate();
 
+  const user = JSON.parse(localStorage.getItem("user"));
+  const isLoggedIn = !!user; // אם קיים משתמש בלוקל סטורג'
+
   return (
     <Layout>
       <Box
@@ -39,30 +42,59 @@ export default function HomePage({ setRole }) {
           Turning leftover meals into meaningful help. Connect catering
           businesses, volunteers, and charities in real-time.
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          size="large"
-          sx={{ mr: 2, px: 4, py: 1.5 }}
-          onClick={() => {
-            setRole("donor");
-            navigate("/signup");
-          }}
-        >
-          Offer Food
-        </Button>
-        <Button
-          variant="outlined"
-          color="primary"
-          size="large"
-          sx={{ px: 4, py: 1.5 }}
-          onClick={() => {
-            setRole("volunteer");
-            navigate("/signup");
-          }}
-        >
-          Collect Food
-        </Button>
+
+
+       {!isLoggedIn ? (
+          <>
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              sx={{ mr: 2, px: 4, py: 1.5 }}
+              onClick={() => navigate("/signup")}
+            >
+              Sign Up
+            </Button>
+            <Button
+              variant="outlined"
+              color="primary"
+              size="large"
+              sx={{ px: 4, py: 1.5 }}
+              onClick={() => navigate("/login")}
+            >
+              Login
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              sx={{ mr: 2, px: 4, py: 1.5 }}
+              onClick={() => {
+                setRole("donor");
+                navigate("/donor");
+              }}
+            >
+              Offer Food
+            </Button>
+            <Button
+              variant="outlined"
+              color="primary"
+              size="large"
+              sx={{ px: 4, py: 1.5 }}
+              onClick={() => {
+                setRole("volunteer");
+                navigate("/volunteer");
+              }}
+            >
+              Collect Food
+            </Button>
+          </>
+        )}
+
+
       </Box>
 
       {/* Feature Section */}
