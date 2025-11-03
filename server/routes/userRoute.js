@@ -1,5 +1,5 @@
 import express from "express";
-import User from "../modules/user.js";
+import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { authenticateToken } from "../middleware/auth.js";
@@ -30,6 +30,7 @@ router.get("/email/:email", authenticateToken, async (req, res) => {
   }
 });
 
+
 // ================== SIGNUP ==================
 router.post("/signup", async (req, res) => {
   try {
@@ -52,15 +53,23 @@ router.post("/signup", async (req, res) => {
     });
     await newUser.save();
 
+    // generate JWT
+    const token = jwt.sign(
+      { id: newUser._id, email: newUser.email, role: newUser.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
     const userToSend = newUser.toObject();
     delete userToSend.password;
 
-    res.status(201).json(userToSend);
+    res.status(201).json({ user: userToSend, token }); // <-- return token
   } catch (err) {
     console.error("Signup error:", err);
     res.status(500).json({ error: "Server error creating user" });
   }
 });
+
 
 // ================== LOGIN ==================
 router.post("/login", async (req, res) => {

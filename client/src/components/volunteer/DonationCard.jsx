@@ -6,15 +6,11 @@ import {
   Typography,
   Button,
   Box,
-  List,
-  ListItem,
-  ListItemText,
 } from "@mui/material";
 
 const DonationCard = ({ donation, onClaim }) => {
-  const { _id, name, address, items, maxTime, status } = donation;
+  const { _id, name, address, items, status, volunteerName } = donation;
 
-  // האם התרומה זמינה לתפיסה
   const isAvailable = status === "pending";
 
   return (
@@ -35,33 +31,24 @@ const DonationCard = ({ donation, onClaim }) => {
         </Typography>
 
         <Box mt={1}>
-          <Typography variant="subtitle2">Items:</Typography>
-          <List dense>
-            {items.map((item, idx) => (
-              <ListItem key={idx} sx={{ py: 0 }}>
-                <ListItemText
-                  primary={`${item.food} - ${item.amount} ${item.unit}`}
-                />
-              </ListItem>
-            ))}
-          </List>
+          {items.map((item, idx) => (
+            <Typography key={idx} variant="body2">
+              <strong>{item.food}:</strong> {item.amount} {item.unit}
+            </Typography>
+          ))}
 
           <Typography
             variant="body2"
             color={
-              status === "pending"
-                ? "success.main"
-                : status === "claimed"
-                ? "info.main"
-                : "text.secondary"
+              isAvailable ? "success.main" : status === "claimed" ? "warning.main" : "info.main"
             }
             sx={{ mt: 1 }}
           >
-            {status.charAt(0).toUpperCase() + status.slice(1)}
-          </Typography>
-
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            Max Pickup: {new Date(maxTime).toLocaleString()}
+            {status === "pending"
+              ? "Available"
+              : status === "claimed"
+              ? `Claimed by ${volunteerName || "someone"}`
+              : "Completed"}
           </Typography>
         </Box>
       </CardContent>

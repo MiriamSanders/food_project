@@ -3,29 +3,42 @@ import { Box, CircularProgress, Typography } from "@mui/material";
 import DonationList from "./DonationList";
 import Layout from "../layout/Layout";
 import axios from "axios";
-import { io } from "socket.io-client";
+import io from "socket.io-client";
+import SuccessPage from "./SuccessPage.jsx";
+
+const socket = io("http://localhost:5000", { transports: ["websocket"] });
 
 const VolunteerDonationClaim = () => {
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === "development";
+  const [successOpen, setSuccessOpen] = useState(false);
+  const [claimedAddress, setClaimedAddress] = useState("");
 
   useEffect(() => {
     const fetchDonations = async () => {
       setLoading(true);
       try {
-        if (isDev && !API_BASE_URL) {
-          // נתוני דמו במידה ואין שרת
-          setTimeout(() => {
-            setDonations([]);
-            setLoading(false);
-          }, 500);
-          return;
-        }
-        const res = await axios.get(`${API_BASE_URL}/donations`);
-        setDonations(res.data);
+        const getCoordinates = () =>
+          new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(
+              (position) => resolve(position.coords),
+              (error) => reject(error)
+            );
+          });
+
+        const coords = await getCoordinates();
+        const { latitude, longitude } = coords;
+
+        const token = localStorage.getItem("token");
+        const res = await axios.get(
+          `http://localhost:5000/donations?lat=${latitude}&lng=${longitude}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        const available = res.data.filter((d) => d.status === "pending");
+        setDonations(available);
       } catch (err) {
         console.error("Error fetching donations:", err);
       } finally {
@@ -34,42 +47,47 @@ const VolunteerDonationClaim = () => {
     };
 
     fetchDonations();
+  }, []);
 
-    const socket = io(API_BASE_URL || "http://localhost:5000");
-
+  useEffect(() => {
+    socket.on("donationClaimed", (updatedDonation) => {
+      setDonations((prev) =>
+        prev.map((d) =>
+          d._id === updatedDonation._id ? { ...d, ...updatedDonation } : d
+        )
+      );
+    });
 
     socket.on("donationCreated", (newDonation) => {
       setDonations((prev) => [newDonation, ...prev]);
     });
 
-    socket.on("donationUpdated", (updatedDonation) => {
-      setDonations((prev) =>
-        prev.map((d) => (d._id === updatedDonation._id ? updatedDonation : d))
-      );
-    });
-
     return () => {
-      socket.disconnect();
+      socket.off("donationClaimed");
+      socket.off("donationCreated");
     };
-  }, [API_BASE_URL, isDev]);
+  }, []);
 
   const handleClaim = async (donationId) => {
-    if (isDev && !API_BASE_URL) {
-      setDonations((prev) =>
-        prev.map((d) =>
-          d._id === donationId ? { ...d, status: "claimed" } : d
-        )
-      );
-      return;
-    }
-
     try {
-      await axios.put(`${API_BASE_URL}/donations/${donationId}/claim`);
+      const token = localStorage.getItem("token");
+
+      const res = await axios.put(
+        `http://localhost:5000/donations/${donationId}/claim`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
       setDonations((prev) =>
         prev.map((d) =>
           d._id === donationId ? { ...d, status: "claimed" } : d
         )
       );
+
+      const claimedDonation = donations.find((d) => d._id === donationId);
+      if (claimedDonation?.address) setClaimedAddress(claimedDonation.address);
+
+      setSuccessOpen(true);
     } catch (err) {
       console.error("Error claiming donation:", err);
     }
@@ -87,12 +105,21 @@ const VolunteerDonationClaim = () => {
       </Box>
 
       {loading ? (
-        <Box display="flex" justifyContent="center" mt={4}>
+        <Box display="flex" flexDirection="column" alignItems="center" mt={4}>
           <CircularProgress color="primary" />
+          <Typography variant="body1" mt={2}>
+            Loading nearby donations...
+          </Typography>
         </Box>
       ) : (
         <DonationList donations={donations} onClaim={handleClaim} />
       )}
+
+      <SuccessPage
+        open={successOpen}
+        address={claimedAddress}
+        onClose={() => setSuccessOpen(false)}
+      />
     </Layout>
   );
 };

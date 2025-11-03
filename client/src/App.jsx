@@ -5,17 +5,38 @@ import SignupPage from "./auth/Signup";
 import FoodDonationPage from "./components/donor/FoodDonationPage";
 import VolunteerDonationClaim from "./components/volunteer/VolunteerDonationClaim";
 import HomePage from "./components/HomePage";
-import SuccessPage from "./components/volunteer/SuccessPAge";
+import ProtectedRoute from "./components/ProtectedRoute";
+import ProfilePage from "./components/common/ProfilePage";
+
 export default function App() {
+  const [role, setRole] = React.useState("");
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Navigate to="/home" />} />
-        <Route path="/home" element={<HomePage />} />
+        <Route path="/home" element={<HomePage setRole={setRole} />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/donation" element={<FoodDonationPage />} />
-        <Route path="/claimdonation" element={<VolunteerDonationClaim />} />
+        <Route path="/signup" element={<SignupPage userRole={role}/>} />
+        <Route path="/profile" element={<ProfilePage />} />
+
+
+        <Route
+          path="/donation"
+          element={
+            <ProtectedRoute allowedRoles={["donor"]}>
+              <FoodDonationPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/claimdonation"
+          element={
+            <ProtectedRoute allowedRoles={["volunteer"]}>
+              <VolunteerDonationClaim />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );

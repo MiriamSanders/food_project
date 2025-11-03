@@ -7,13 +7,13 @@ import { Favorite, Person, Home, AssignmentInd, Badge } from "@mui/icons-materia
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { signupUser } from "./api";
 
-export default function SignupPage() {
+export default function SignupPage({userRole}) {
   const navigate = useNavigate();
   const [name, setName] = useState("");        // added
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [address, setAddress] = useState("");
-  const [role, setRole] = useState("");
+  const [role, setRole] = useState(userRole||"");
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -30,7 +30,7 @@ const handleSignup = async (e) => {
   const newUser = { name, email, password, address, role };
   const result = await signupUser(newUser);
 
-  if (result) {
+  if (result && result.token) { // <-- check token
     setSnackbar({ open: true, message: "Signup successful!", severity: "success" });
 
     // Navigate based on role after short delay
@@ -43,12 +43,12 @@ const handleSignup = async (e) => {
         navigate("/"); // fallback
       }
     }, 1000);
-    
   } else {
     setSnackbar({ open: true, message: "Signup failed. Try again.", severity: "error" });
   }
   setIsSubmitting(false);
 };
+
   return (
     <Box
       sx={{
@@ -143,7 +143,7 @@ const handleSignup = async (e) => {
 
         <Typography textAlign="center" mt={3} color="text.secondary">
           Already have an account?{" "}
-          <RouterLink to="/" style={{ color: "#1976d2", textDecoration: "none" }}>
+          <RouterLink to="/login" style={{ color: "#1976d2", textDecoration: "none" }}>
             Log in
           </RouterLink>
         </Typography>
